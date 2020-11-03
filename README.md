@@ -2,6 +2,8 @@
 
 A FiveM resource allowing an admin to create extinguishable fires. (You can set the admin level and default values in config)
 
+![alt-text][(https://imgur.com/a/UD39z6m "Example fire #1")]
+
 ## Installation
 
 Drop the folder `firescript` into your resources folder and start it using the console / add it to the server configuration.
