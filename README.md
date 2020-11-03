@@ -2,7 +2,7 @@
 
 A FiveM resource allowing an admin to create extinguishable fires. (You can set the admin level and default values in config)
 
-![alt-text][(https://imgur.com/a/UD39z6m "Example fire #1")]
+![alt text](https://i.imgur.com/sZQEmP7.png "Example fire #1")
 
 ## Installation
 
