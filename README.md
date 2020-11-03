@@ -51,6 +51,9 @@ It is also possible to pre-define fires. These I called the registered fires.
 `/startregisteredfire <registeredFireID>` *Starts a registered fire*
 - registeredFireID: `int` - *the registered fire identifier*
 
+`/stopregisteredfire <registeredFireID>` *Stops a registered fire*
+- registeredFireID: `int` - *the registered fire identifier*
+
 ## Known bugs
 - when a packet loss occurs, the fire might desynchronize, because the events weren't triggered on your client.
 
