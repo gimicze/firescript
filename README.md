@@ -21,38 +21,7 @@ start firescript
 
 ## Usage
 
-`/startfire <spread> <chance> <dispatch>` *Starts a fire at the ped's coords*
-- spread: 0-∞ (but stay low, for the sake of the server and your machine) - *how many times can the fire spread?*
-- chance: 0-100 - *how many chances out of 100 does the fire spread?* (not exactly percentage)
-- dispatch: **true** / **false** (default: false) - *should the script trigger dispatch?*
-
-  **Returns:** fireID - *Note that the identifier is required to stop one specific fire.*
-
-`/stopfire <fireID>`
-- fireID: `int` - *the fire identifier*
-
-It is also possible to pre-define fires. These I called the registered fires.
-
-`/registerfire <dispatch>` *Registers a new pre-defined fire*
-- dispatch: **true** / **false** (default: false) - *should the script trigger dispatch when the fire gets started? (dispatch coords will be set to the coords where this command was triggered)*
-
-  **Returns:** registeredFireID - *Note that the identifier is required to stop one specific whole registered fire.*
-
-`/addflame <spread> <chance>` *Adds a flame to a registered fire*
-- spread: 0-∞ (but stay low, for the sake of the server and your machine) - *how many times can the flame spread?*
-- chance: 0-100 - *how many chances out of 100 does the flame spread?* (not exactly percentage)
-
-  **Returns:** flameID - *Note that the identifier is required to remove it from the registered fire.*
-
-`/removeflame <registeredFireID> <flameID>` *Removes a flame from a registered fire*
-- registeredFireID: `int` - *the registered fire identifier*
-- flameID: `int` - *the flame identifier*
-
-`/startregisteredfire <registeredFireID>` *Starts a registered fire*
-- registeredFireID: `int` - *the registered fire identifier*
-
-`/stopregisteredfire <registeredFireID>` *Stops a registered fire*
-- registeredFireID: `int` - *the registered fire identifier*
+*Tutorial moved to [the wiki](https://github.com/gimicze/firescript/wiki).*
 
 ## Known bugs
 - when a packet loss occurs, the fire might desynchronize, because the events weren't triggered on your client.
