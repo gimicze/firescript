@@ -11,6 +11,99 @@ local syncInProgress = false
 TriggerEvent("chat:addTemplate", "firescript", '<div style="text-indent: 0 !important; padding: 0.5vw; margin: 0.05vw; color: rgba(255,255,255,0.9);background-color: rgba(250,26,56, 0.8); border-radius: 4px;"><b>FireScript v1.3</b> {0} </div>')
 
 --================================--
+--          SUGGESTIONS           --
+--================================--
+
+TriggerEvent('chat:addSuggestion', '/startfire', 'Creates a fire', {
+	{
+		name = "spread",
+		help = "How many times can the fire spread?"
+	},
+	{
+		name = "chance",
+		help = "0 - 100; How quickly the fire spreads?"
+	},
+	{
+		name = "dispatch",
+		help = "true or false (default false)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
+	{
+		name = "index",
+		help = "The fire's index"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
+
+TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration', {
+	{
+		name = "dispatch",
+		help = "Should the fire trigger dispatch? (default true)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
+	{
+		name = "fireID",
+		help = "The registered fire"
+	},
+	{
+		name = "spread",
+		help = "How many times can the flame spread?"
+	},
+	{
+		name = "chance",
+		help = "How many out of 100 chances should the fire spread? (0-100)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a registered fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	},
+	{
+		name = "flameID",
+		help = "The flame ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a register fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/stopregisteredfire', 'Stops a registered fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/firewl', 'Manages the fire script whitelist', {
+	{
+		name = "action",
+		help = "add / remove"
+	},
+	{
+		name = "playerID",
+		help = "The player's server ID"
+	}
+})
+
+--================================--
 --        SYNC ON CONNECT         --
 --================================--
 
@@ -20,6 +113,7 @@ AddEventHandler(
 	function()
 		print("Requested synchronization..")
 		TriggerServerEvent('fireManager:requestSync')
+		TriggerServerEvent('fireManager:checkWhitelist')
 	end
 )
 

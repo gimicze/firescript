@@ -6,5 +6,3 @@ Config.Fire = {
 }
 
 Config.DispatchTimeout = 15000
-
-Config.AdminLevel = 100

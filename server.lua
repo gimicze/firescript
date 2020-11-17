@@ -8,6 +8,9 @@ local activeFires = {}
 local registeredFires = {}
 local boundFires = {}
 
+local whitelist = {}
+local whitelistedLicenses = {}
+
 --================================--
 --           FIRE SYNC            --
 --================================--
@@ -55,11 +58,92 @@ AddEventHandler(
 )
 
 --================================--
+--          WHITELSIT             --
+--================================--
+
+RegisterNetEvent('onResourceStart')
+AddEventHandler(
+	'onResourceStart',
+	function(resourceName)
+		if (GetCurrentResourceName() == resourceName) then
+			loadWhitelist()
+		end
+	end
+)
+
+RegisterNetEvent('onResourceStop')
+AddEventHandler(
+	'onResourceStart',
+	function(resourceName)
+		if (GetCurrentResourceName() == resourceName) then
+			saveWhitelist()
+		end
+	end
+)
+
+RegisterNetEvent('fireManager:checkWhitelist')
+AddEventHandler(
+	'fireManager:checkWhitelist',
+	checkWhitelist
+)
+
+RegisterNetEvent('playerDropped')
+AddEventHandler(
+	'playerDropped',
+	removeFromActiveWhitelist
+)
+
+function checkWhitelist()
+	if source > 0 then
+		local licenseID = GetPlayerIdentifier(source, 1):gsub("steam:", "")
+		if whitelistedLicenses[licenseID] == true or IsPlayerAceAllowed(source, "firescript.all") then
+			whitelist[source] = true
+		end
+	end
+end
+
+function isWhitelisted(source)
+	return (source > 0 and whitelist[source] == true)
+end
+
+function removeFromActiveWhitelist()
+	whitelist[source] = nil
+end
+
+function addToWhitelist(serverId, identifier)
+	whitelist[serverId] = true
+	identifier = identifier:gsub("steam:", "")
+end
+
+function removeFromWhitelist(serverId, identifier)
+	whitelist[serverId] = nil
+	identifier = identifier:gsub("steam:", "")
+	whitelistedLicenses[identifier] = nil
+end
+
+function loadWhitelist()
+	local whitelistConfig = json.decode(LoadResourceFile(resourceName, "whitelist.json"))
+	if whitelistConfig ~= nil then
+		whitelistedLicenses = whitelistConfig
+	else
+		SaveResourceFile(resourceName, "whitelist.json", json.encode({}), -1)
+	end
+end
+
+function saveWhitelist()
+	SaveResourceFile(resourceName, "whitelist.json", json.encode(whitelistedLicenses), -1)
+end
+
+--================================--
 --           COMMANDS             --
 --================================--
 
-TriggerEvent('es:addAdminCommand', 'startfire', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'startfire',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local coords = nil
 		local _source = source
 
@@ -80,30 +164,15 @@ TriggerEvent('es:addAdminCommand', 'startfire', Config.AdminLevel,
 			)
 		end
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Creates a fire",
-		params = {
-			{
-				name = "spread",
-				help = "How many times can the fire spread?"
-			},
-			{
-				name = "chance",
-				help = "0 - 100; How quickly the fire spreads?"
-			},
-			{
-				name = "dispatch",
-				help = "true or false (default false)"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'stopfire', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'stopfire',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local fireIndex = tonumber(args[1])
 		if not fireIndex then
 			return
@@ -119,22 +188,15 @@ TriggerEvent('es:addAdminCommand', 'stopfire', Config.AdminLevel,
 			})
 		end
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Stops the fire",
-		params = {
-			{
-				name = "index",
-				help = "The fire's index"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'stopallfires', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'stopallfires',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		removeAllFires()
 		sendMessage(source, "Stopping fires")
 		TriggerClientEvent("pNotify:SendNotification", source, {
@@ -145,16 +207,15 @@ TriggerEvent('es:addAdminCommand', 'stopallfires', Config.AdminLevel,
 			queue = "fire"
 		})
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Stops all the fires"
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'registerfire', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'registerfire',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local coords = nil
 
 		if not (args[1] == nil or args[1] == "false") then
@@ -165,22 +226,15 @@ TriggerEvent('es:addAdminCommand', 'registerfire', Config.AdminLevel,
 
 		sendMessage(source, "Registered fire #" .. registeredFireID)
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Registers a new fire configuration",
-		params = {
-			{
-				name = "dispatch",
-				help = "Should the fire trigger dispatch? (default true)"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'addflame', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'addflame',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local registeredFireID = tonumber(args[1])
 		local spread = tonumber(args[2])
 		local chance = tonumber(args[3])
@@ -204,30 +258,15 @@ TriggerEvent('es:addAdminCommand', 'addflame', Config.AdminLevel,
 
 		sendMessage(source, "Registered flame #" .. flameID)
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Adds a flame to a registered fire.",
-		params = {
-			{
-				name = "fireID",
-				help = "The registered fire"
-			},
-			{
-				name = "spread",
-				help = "How many times can the flame spread?"
-			},
-			{
-				name = "chance",
-				help = "How many out of 100 chances should the fire spread? (0-100)"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'removeflame', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'removeflame',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local registeredFireID = tonumber(args[1])
 		local flameID = tonumber(args[2])
 
@@ -245,26 +284,15 @@ TriggerEvent('es:addAdminCommand', 'removeflame', Config.AdminLevel,
 
 		sendMessage(source, "Removed flame #" .. flameID)
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Removes a flame from a registered fire",
-		params = {
-			{
-				name = "fireID",
-				help = "The fire ID"
-			},
-			{
-				name = "flameID",
-				help = "The flame ID"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'removefire', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'removefire',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local registeredFireID = tonumber(args[1])
 		if not registeredFireID then
 			return
@@ -279,22 +307,15 @@ TriggerEvent('es:addAdminCommand', 'removefire', Config.AdminLevel,
 
 		sendMessage(source, "Removed fire #" .. registeredFireID)
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Removes a flame from a registered fire",
-		params = {
-			{
-				name = "fireID",
-				help = "The fire ID"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'startregisteredfire', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'startregisteredfire',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local _source = source
 		local registeredFireID = tonumber(args[1])
 
@@ -327,22 +348,15 @@ TriggerEvent('es:addAdminCommand', 'startregisteredfire', Config.AdminLevel,
 
 		sendMessage(source, "Started registered fire #" .. registeredFireID)
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
-	end,
-	{
-		help = "Starts a registered fire",
-		params = {
-			{
-				name = "fireID",
-				help = "The fire ID"
-			}
-		}
-	}
+	false
 )
 
-TriggerEvent('es:addAdminCommand', 'stopregisteredfire', Config.AdminLevel, 
-	function(source, args, user)
+RegisterCommand(
+	'stopregisteredfire',
+	function(source, args, rawCommand)
+		if not isWhitelisted(source) then
+			return
+		end
 		local _source = source
 		local registeredFireID = tonumber(args[1])
 
@@ -372,18 +386,38 @@ TriggerEvent('es:addAdminCommand', 'stopregisteredfire', Config.AdminLevel,
 			queue = "fire"
 		})
 	end,
-	function(source, args, user)
-		-- The user isn't administrator
+	false
+)
+
+RegisterCommand(
+	'firewl',
+	function(source, args, rawCommand)
+		local _source = source
+		local action = args[1]
+		local serverId = tonumber(args[2])
+
+		if not (action and serverId) then
+			return
+		end
+
+		local identifier = GetPlayerIdentifier(serverId, 1)
+
+		if not identifier then
+			sendMessage(source, "Player not online.")
+			return
+		end
+
+		if action == "add" then
+			addToWhitelist(serverId, identifier)
+			sendMessage(source, ("Added %s to the whitelist."):format(GetPlayerName(serverId)))
+		elseif == "remove" then
+			removeFromWhitelist(serverId, identifier)
+			sendMessage(source, ("Removed %s from the whitelist."):format(GetPlayerName(serverId)))
+		else
+			sendMessage(source, "Invalid action.")
+		end
 	end,
-	{
-		help = "Stops a registered fire",
-		params = {
-			{
-				name = "fireID",
-				help = "The fire ID"
-			}
-		}
-	}
+	true
 )
 
 --================================--
