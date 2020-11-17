@@ -103,6 +103,8 @@ TriggerEvent('chat:addSuggestion', '/firewl', 'Manages the fire script whitelist
 	}
 })
 
+TriggerEvent('chat:addSuggestion', '/firewlreload', 'Reloads the whitelist from the config')
+
 --================================--
 --        SYNC ON CONNECT         --
 --================================--
@@ -113,7 +115,16 @@ AddEventHandler(
 	function()
 		print("Requested synchronization..")
 		TriggerServerEvent('fireManager:requestSync')
-		TriggerServerEvent('fireManager:checkWhitelist')
+	end
+)
+
+RegisterNetEvent('onClientResourceStart')
+AddEventHandler(
+	'onClientResourceStart',
+	function(resourceName)
+		if resourceName == GetCurrentResourceName() then
+			TriggerServerEvent('fireManager:checkWhitelist')
+		end
 	end
 )
 

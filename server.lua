@@ -9,7 +9,7 @@ local registeredFires = {}
 local boundFires = {}
 
 local whitelist = {}
-local whitelistedLicenses = {}
+local whitelistedPlayers = {}
 
 --================================--
 --           FIRE SYNC            --
@@ -61,6 +61,56 @@ AddEventHandler(
 --          WHITELSIT             --
 --================================--
 
+function checkWhitelist(serverId)
+	if serverId then
+		source = serverId
+	end
+	if source > 0 then
+		local steamID = GetPlayerIdentifier(source, 0)
+		if whitelistedPlayers[steamID] == true or IsPlayerAceAllowed(source, "firescript.all") then
+			whitelist[source] = true
+		elseif whitelist[source] ~= nil then
+			whitelist[source] = nil
+		end
+	end
+end
+
+function isWhitelisted(source)
+	return (source > 0 and whitelist[source] == true)
+end
+
+function removeFromActiveWhitelist()
+	whitelist[source] = nil
+end
+
+function addToWhitelist(serverId, steamId)
+	whitelist[serverId] = true
+	whitelistedPlayers[steamId] = true
+end
+
+function removeFromWhitelist(serverId, steamId)
+	whitelist[serverId] = nil
+	whitelistedPlayers[steamId] = nil
+end
+
+function loadWhitelist()
+	local resourceName = GetCurrentResourceName()
+	local whitelistFile = json.decode(LoadResourceFile(resourceName, "whitelist.json"))
+	if whitelistFile ~= nil then
+		whitelistedPlayers = whitelistFile
+		for _, playerId in ipairs(GetPlayers()) do
+			checkWhitelist(tonumber(playerId))
+		end
+	else
+		SaveResourceFile(resourceName, "whitelist.json", json.encode({}), -1)
+	end
+end
+
+function saveWhitelist()
+	local resourceName = GetCurrentResourceName()
+	SaveResourceFile(resourceName, "whitelist.json", json.encode(whitelistedPlayers), -1)
+end
+
 RegisterNetEvent('onResourceStart')
 AddEventHandler(
 	'onResourceStart',
@@ -73,7 +123,7 @@ AddEventHandler(
 
 RegisterNetEvent('onResourceStop')
 AddEventHandler(
-	'onResourceStart',
+	'onResourceStop',
 	function(resourceName)
 		if (GetCurrentResourceName() == resourceName) then
 			saveWhitelist()
@@ -92,47 +142,6 @@ AddEventHandler(
 	'playerDropped',
 	removeFromActiveWhitelist
 )
-
-function checkWhitelist()
-	if source > 0 then
-		local licenseID = GetPlayerIdentifier(source, 1):gsub("steam:", "")
-		if whitelistedLicenses[licenseID] == true or IsPlayerAceAllowed(source, "firescript.all") then
-			whitelist[source] = true
-		end
-	end
-end
-
-function isWhitelisted(source)
-	return (source > 0 and whitelist[source] == true)
-end
-
-function removeFromActiveWhitelist()
-	whitelist[source] = nil
-end
-
-function addToWhitelist(serverId, identifier)
-	whitelist[serverId] = true
-	identifier = identifier:gsub("steam:", "")
-end
-
-function removeFromWhitelist(serverId, identifier)
-	whitelist[serverId] = nil
-	identifier = identifier:gsub("steam:", "")
-	whitelistedLicenses[identifier] = nil
-end
-
-function loadWhitelist()
-	local whitelistConfig = json.decode(LoadResourceFile(resourceName, "whitelist.json"))
-	if whitelistConfig ~= nil then
-		whitelistedLicenses = whitelistConfig
-	else
-		SaveResourceFile(resourceName, "whitelist.json", json.encode({}), -1)
-	end
-end
-
-function saveWhitelist()
-	SaveResourceFile(resourceName, "whitelist.json", json.encode(whitelistedLicenses), -1)
-end
 
 --================================--
 --           COMMANDS             --
@@ -400,7 +409,7 @@ RegisterCommand(
 			return
 		end
 
-		local identifier = GetPlayerIdentifier(serverId, 1)
+		local identifier = GetPlayerIdentifier(serverId, 0)
 
 		if not identifier then
 			sendMessage(source, "Player not online.")
@@ -410,12 +419,30 @@ RegisterCommand(
 		if action == "add" then
 			addToWhitelist(serverId, identifier)
 			sendMessage(source, ("Added %s to the whitelist."):format(GetPlayerName(serverId)))
-		elseif == "remove" then
+		elseif action == "remove" then
 			removeFromWhitelist(serverId, identifier)
 			sendMessage(source, ("Removed %s from the whitelist."):format(GetPlayerName(serverId)))
 		else
 			sendMessage(source, "Invalid action.")
 		end
+	end,
+	true
+)
+
+RegisterCommand(
+	'firewlreload',
+	function(source, args, rawCommand)
+		loadWhitelist()
+		sendMessage(source, "Reloaded whitelist from config.")
+	end,
+	true
+)
+
+RegisterCommand(
+	'firewlsave',
+	function(source, args, rawCommand)
+		saveWhitelist()
+		sendMessage(source, "Saved whitelist.")
 	end,
 	true
 )
