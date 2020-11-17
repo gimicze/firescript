@@ -14,6 +14,7 @@ client_scripts {
 }
 
 server_scripts {
+	"whitelist.json",
 	"config.lua",
 	"server.lua",
 }
