@@ -338,7 +338,7 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(activeFires) do
 				for flameIndex, coords in pairs(v.flameCoords) do
 					Citizen.Wait(10)
-					if not v.flames[flameIndex] and GetDistanceBetweenCoords(pedCoords, coords) < 300.0 then
+					if not v.flames[flameIndex] and #(pedCoords - coords) < 300.0 then
 						local z = coords.z
 		
 						repeat

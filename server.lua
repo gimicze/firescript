@@ -153,13 +153,12 @@ RegisterCommand(
 		if not isWhitelisted(source) then
 			return
 		end
-		local coords = nil
+		local coords = GetEntityCoords(GetPlayerPed(source))
 		local _source = source
 
 		local maxSpread = (args[1] ~= nil and tonumber(args[1]) ~= nil) and tonumber(args[1]) or Config.Fire.maximumSpreads
 		local probability = (args[2] ~= nil and tonumber(args[2]) ~= nil) and tonumber(args[2]) or Config.Fire.fireSpreadChance
 
-		coords = GetEntityCoords(GetPlayerPed(source))
 		local fireIndex = createFire(coords, maxSpread, probability)
 
 		sendMessage(source, "Created fire #" .. fireIndex)
@@ -485,10 +484,7 @@ function createFire(coords, maximumSpread, spreadChance)
 							local xSpread = math.random(-2, 2)
 							local ySpread = math.random(-2, 2)
 	
-							local newX = x + xSpread
-							local newY = y + ySpread
-	
-							coords = vector3(newX, newY, z)
+							coords = vector3(x + xSpread, y + ySpread, z)
 	
 							createFlame(fireIndex, coords)
 						end
