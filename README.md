@@ -1,4 +1,4 @@
-# FireScript `v1.4`
+# FireScript `v1.4.1`
 
 A FiveM resource allowing an admin to create extinguishable fires.
 
