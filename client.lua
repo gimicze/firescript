@@ -5,6 +5,7 @@
 --================================--
 
 activeFires = {}
+removedFires = {}
 
 local syncInProgress = false
 
@@ -133,15 +134,17 @@ AddEventHandler(
 --================================--
 
 function createFlame(fireIndex, flameIndex, coords)
-	if activeFires[fireIndex] == nil then
-		activeFires[fireIndex] = {
-			flameCoords = {},
-			flames = {},
-			particles = {},
-			flameParticles = {}
-		}
+	if not removedFires[fireIndex] then
+		if activeFires[fireIndex] == nil then
+			activeFires[fireIndex] = {
+				flameCoords = {},
+				flames = {},
+				particles = {},
+				flameParticles = {}
+			}
+		end
+		activeFires[fireIndex].flameCoords[flameIndex] = coords
 	end
-	activeFires[fireIndex].flameCoords[flameIndex] = coords
 end
 
 function removeFlame(fireIndex, flameIndex)
@@ -174,8 +177,9 @@ function removeFlame(fireIndex, flameIndex)
 	end
 	activeFires[fireIndex].flameCoords[flameIndex] = nil
 
-	if countElements(activeFires[fireIndex].flameCoords) < 1 and activeFires[fireIndex] ~= nil then
-		table.remove(activeFires, fireIndex)
+	if activeFires[fireIndex] ~= nil and countElements(activeFires[fireIndex].flames) < 1 then
+		activeFires[fireIndex] = nil
+		removedFires[fireIndex] = true
 	end
 end
 
@@ -194,13 +198,11 @@ function removeFire(fireIndex, callback)
 			if activeFires[fireIndex] and next(activeFires[fireIndex].flames) ~= nil then
 				print("WARNING: A fire persisted!")
 				removeFire(fireIndex)
+			elseif callback then
+				callback(fireIndex)
 			end
 		end
 	)
-
-	if callback then
-		callback(fireIndex)
-	end
 end
 
 function removeAllFires(callback)
@@ -283,7 +285,7 @@ AddEventHandler(
     "fireClient:createFlame",
 	function(fireIndex, flameIndex, coords)
 		syncInProgress = true
-        createFlame(fireIndex, flameIndex, coords)
+		createFlame(fireIndex, flameIndex, coords)
 		syncInProgress = false
     end
 )
