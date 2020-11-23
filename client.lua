@@ -209,6 +209,9 @@ function removeAllFires(callback)
 	for k, v in pairs(activeFires) do
 		removeFire(k)
 	end
+
+	activeFires = {}
+	removedFires = {}
 	
 	if callback then
 		callback()
