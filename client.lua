@@ -569,7 +569,7 @@ Citizen.CreateThread(
 --     DISPATCH ROUTE REMOVAL     --
 --================================--
 
-if Config.Dispatch.clearGpsRadius ~= nil then
+if Config.Dispatch.clearGpsRadius and tonumber(Config.Dispatch.clearGpsRadius) then
 	Citizen.CreateThread(
 		function()
 			while true do
