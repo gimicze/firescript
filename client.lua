@@ -1,110 +1,18 @@
 --================================--
---        FIRE SCRIPT v1.3        --
+--        FIRE SCRIPT v1.5        --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
-activeFires = {}
-removedFires = {}
+local activeFires = {}
+local removedFires = {}
+
+local lastCall = nil
+local dispatchBlips = {}
 
 local syncInProgress = false
 
-TriggerEvent("chat:addTemplate", "firescript", '<div style="text-indent: 0 !important; padding: 0.5vw; margin: 0.05vw; color: rgba(255,255,255,0.9);background-color: rgba(250,26,56, 0.8); border-radius: 4px;"><b>FireScript v1.3</b> {0} </div>')
-
---================================--
---          SUGGESTIONS           --
---================================--
-
-TriggerEvent('chat:addSuggestion', '/startfire', 'Creates a fire', {
-	{
-		name = "spread",
-		help = "How many times can the fire spread?"
-	},
-	{
-		name = "chance",
-		help = "0 - 100; How quickly the fire spreads?"
-	},
-	{
-		name = "dispatch",
-		help = "true or false (default false)"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
-	{
-		name = "index",
-		help = "The fire's index"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
-
-TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration', {
-	{
-		name = "dispatch",
-		help = "Should the fire trigger dispatch? (default true)"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
-	{
-		name = "fireID",
-		help = "The registered fire"
-	},
-	{
-		name = "spread",
-		help = "How many times can the flame spread?"
-	},
-	{
-		name = "chance",
-		help = "How many out of 100 chances should the fire spread? (0-100)"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a registered fire', {
-	{
-		name = "fireID",
-		help = "The fire ID"
-	},
-	{
-		name = "flameID",
-		help = "The flame ID"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a register fire', {
-	{
-		name = "fireID",
-		help = "The fire ID"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered fire', {
-	{
-		name = "fireID",
-		help = "The fire ID"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/stopregisteredfire', 'Stops a registered fire', {
-	{
-		name = "fireID",
-		help = "The fire ID"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/firewl', 'Manages the fire script whitelist', {
-	{
-		name = "action",
-		help = "add / remove"
-	},
-	{
-		name = "playerID",
-		help = "The player's server ID"
-	}
-})
-
-TriggerEvent('chat:addSuggestion', '/firewlreload', 'Reloads the whitelist from the config')
+TriggerEvent("chat:addTemplate", "firescript", '<div style="text-indent: 0 !important; padding: 0.5vw; margin: 0.05vw; color: rgba(255,255,255,0.9);background-color: rgba(250,26,56, 0.8); border-radius: 4px;"><b>{0}</b> {1} </div>')
 
 --================================--
 --        SYNC ON CONNECT         --
@@ -124,7 +32,125 @@ AddEventHandler(
 	'onClientResourceStart',
 	function(resourceName)
 		if resourceName == GetCurrentResourceName() then
+			-- Check the command whitelist
 			TriggerServerEvent('fireManager:checkWhitelist')
+
+			-- Chat suggestions
+			TriggerEvent('chat:addSuggestion', '/startfire', 'Creates a fire', {
+				{
+					name = "spread",
+					help = "How many times can the fire spread?"
+				},
+				{
+					name = "chance",
+					help = "0 - 100; How quickly the fire spreads?"
+				},
+				{
+					name = "dispatch",
+					help = "true or false (default false)"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
+				{
+					name = "index",
+					help = "The fire's index"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
+			
+			TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration', {
+				{
+					name = "dispatch",
+					help = "Should the fire trigger dispatch? (default true)"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
+				{
+					name = "fireID",
+					help = "The registered fire"
+				},
+				{
+					name = "spread",
+					help = "How many times can the flame spread?"
+				},
+				{
+					name = "chance",
+					help = "How many out of 100 chances should the fire spread? (0-100)"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a registered fire', {
+				{
+					name = "fireID",
+					help = "The fire ID"
+				},
+				{
+					name = "flameID",
+					help = "The flame ID"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a register fire', {
+				{
+					name = "fireID",
+					help = "The fire ID"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered fire', {
+				{
+					name = "fireID",
+					help = "The fire ID"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/stopregisteredfire', 'Stops a registered fire', {
+				{
+					name = "fireID",
+					help = "The fire ID"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/firewl', 'Manages the fire script whitelist', {
+				{
+					name = "action",
+					help = "add / remove"
+				},
+				{
+					name = "playerID",
+					help = "The player's server ID"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/firewlreload', 'Reloads the whitelist from the config')
+			
+			TriggerEvent('chat:addSuggestion', '/firedispatch', 'Manages the fire script dispatch subscribers', {
+				{
+					name = "action",
+					help = "add / remove"
+				},
+				{
+					name = "playerID",
+					help = "The player's server ID"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/remindme', 'Sets the GPS waypoint to the specified dispatch call.', {
+				{
+					name = "dispatchID",
+					help = "The dispatch identifier (number)"
+				}
+			})
+			
+			TriggerEvent('chat:addSuggestion', '/cleardispatch', 'Clears navigation to the last dispatch call.', {
+				{
+					name = "dispatchID",
+					help = "(optional) The dispatch identifier, if filled in, the call's blip will be removed."
+				}
+			})
 		end
 	end
 )
@@ -218,6 +244,23 @@ function removeAllFires(callback)
 	end
 end
 
+-- Chat
+
+function sendMessage(text)
+	TriggerEvent(
+		"chat:addMessage",
+		{
+			templateId = "firescript",
+			args = {
+				"FireScript v1.5",
+				text
+			}
+		}
+	)
+end
+
+-- Table functions
+
 function countElements(table)
 	local count = 0
 	if type(table) == "table" then
@@ -227,6 +270,109 @@ function countElements(table)
 	end
 	return count
 end
+
+-- Dispatch system
+
+function renderDispatchRoute(x, y, z)
+    ClearGpsMultiRoute()
+
+    StartGpsMultiRoute(6, true, true)
+    AddPointToGpsMultiRoute(x, y, z)
+    SetGpsMultiRouteRender(true)
+end
+
+function createDispatch(dispatchNumber, coords)
+	if not tonumber(dispatchNumber) then
+		return
+	end
+
+	-- Create a fire blip
+	local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
+	SetBlipSprite(blip, 436)
+	SetBlipDisplay(blip, 4)
+	SetBlipScale(blip, 1.5)
+	SetBlipColour(blip, 1)
+	SetBlipAsShortRange(blip, false)
+	BeginTextCommandSetBlipName("STRING")
+	AddTextComponentString("Fire #" .. dispatchNumber)
+	EndTextCommandSetBlipName(blip)
+
+	dispatchBlips[dispatchNumber] = {
+		coords = coords,
+		blip = blip
+	}
+
+	renderDispatchRoute(coords.x, coords.y, coords.z)
+
+	FlashMinimapDisplay()
+
+	Citizen.SetTimeout(
+		Config.Dispatch.removeBlipTimeout,
+		function()
+			if dispatchBlips[dispatchNumber] and dispatchBlips[dispatchNumber].blip then
+				RemoveBlip(blip)
+				dispatchBlips[dispatchNumber].blip = false
+			end
+			if lastDispatch == dispatchNumber then
+				ClearGpsMultiRoute()
+			end
+		end
+	)
+
+	-- Only store the last 'Config.Dispatch.storeLast' dispatches' data.
+	if countElements(dispatchBlips) > Config.Dispatch.storeLast then
+		local order = {}
+
+		for k, v in pairs(dispatchBlips) do
+			table.insert(order, k)
+		end
+
+		table.sort(order)
+		dispatchBlips[order[1]] = nil
+	end
+
+	lastCall = dispatchNumber
+end
+
+function remindMe(dispatchNumber)
+	if dispatchBlips[dispatchNumber] then
+		SetNewWaypoint(dispatchBlips[dispatchNumber].coords.x, dispatchBlips[dispatchNumber].coords.y)
+	end
+end
+
+--================================--
+--            COMMANDS            --
+--================================--
+
+RegisterCommand(
+	'remindme',
+	function(source, args, rawCommand)
+		local dispatchNumber = tonumber(args[1])
+		if not dispatchNumber then
+			sendMessage("Invalid argument.")
+			return
+		elseif not dispatchBlips[dispatchNumber] then
+			sendMessage("Couldn't find the specified dispatch.")
+			return
+		end
+		remindMe(dispatchNumber)
+	end,
+	false
+)
+
+RegisterCommand(
+	'cleardispatch',
+	function(source, args, rawCommand)
+		ClearGpsMultiRoute()
+
+		local dispatchNumber = tonumber(args[1])
+		if dispatchNumber and dispatchBlips[dispatchNumber] and dispatchBlips[dispatchNumber].blip then
+			RemoveBlip(dispatchBlips[dispatchNumber].blip)
+			dispatchBlips[dispatchNumber].blip = false
+		end
+	end,
+	false
+)
 
 --================================--
 --             EVENTS             --
@@ -291,6 +437,27 @@ AddEventHandler(
 		createFlame(fireIndex, flameIndex, coords)
 		syncInProgress = false
     end
+)
+
+-- Dispatch
+
+if Config.Dispatch.enabled ~= nil then
+	RegisterNetEvent('fd:dispatch')
+	AddEventHandler(
+		'fd:dispatch',
+		function(coords)
+			local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+			local streetName = GetStreetNameFromHashKey(streetName)
+			local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
+			TriggerServerEvent('fireDispatch:create', text, coords)
+		end
+	)
+end
+
+RegisterNetEvent('fireClient:createDispatch')
+AddEventHandler(
+	'fireClient:createDispatch',
+	createDispatch
 )
 
 --================================--
@@ -397,3 +564,20 @@ Citizen.CreateThread(
 		end
 	end
 )
+
+--================================--
+--     DISPATCH ROUTE REMOVAL     --
+--================================--
+
+if Config.Dispatch.clearGpsRadius ~= nil then
+	Citizen.CreateThread(
+		function()
+			while true do
+				Citizen.Wait(5000)
+				if lastCall and dispatchBlips[lastCall] and dispatchBlips[lastCall].blip and #(dispatchBlips[lastCall].coords - GetEntityCoords(GetPlayerPed(-1))) < Config.Dispatch.clearGpsRadius then
+					ClearGpsMultiRoute()
+				end
+			end
+		end
+	)
+end

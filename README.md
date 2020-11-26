@@ -1,4 +1,4 @@
-# FireScript `v1.4.2`
+# FireScript `v1.5`
 
 A FiveM resource allowing an admin to create extinguishable fires.
 
@@ -8,8 +8,6 @@ A FiveM resource allowing an admin to create extinguishable fires.
 
 1. Drop the folder `firescript` into your resources folder.
 2. Start the script: **a)** in the `server.cfg` file; **b)** through the console
-
-**IMPORTANT NOTE!** For the dispatch to work, you'll have to implement your own dispatch system in a client event `fd:dispatch`.
 
 ## Starting a resource through console
 

@@ -1,5 +1,5 @@
 --================================--
---        FIRE SCRIPT v1.3        --
+--        FIRE SCRIPT v1.5        --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -10,6 +10,9 @@ local boundFires = {}
 
 local whitelist = {}
 local whitelistedPlayers = {}
+
+local lastDispatchNumber = 0
+local dispatchPlayers = {}
 
 --================================--
 --           FIRE SYNC            --
@@ -58,7 +61,62 @@ AddEventHandler(
 )
 
 --================================--
---          WHITELSIT             --
+--           DISPATCH             --
+--================================--
+
+function addToDispatch(source)
+	dispatchPlayers[source] = true
+end
+
+function removeFromDispatch(source)
+	dispatchPlayers[source] = nil
+end
+
+function createDispatch(text, coords)
+	if not (text and coords) then
+		return
+	end
+
+	lastDispatchNumber = lastDispatchNumber + 1
+
+	for k, v in pairs(dispatchPlayers) do
+		sendMessage(k, text, ("Dispatch (#%s)"):format(lastDispatchNumber))
+		TriggerClientEvent('fireClient:createDispatch', k, lastDispatchNumber, coords)
+	end
+end
+
+RegisterNetEvent('fireDispatch:registerPlayer')
+AddEventHandler(
+	'fireDispatch:registerPlayer',
+	function(playerSource)
+		if source > 0 then
+			return
+		end
+
+		dispatchPlayers[playerSource] = true
+	end
+)
+
+RegisterNetEvent('fireDispatch:removePlayer')
+AddEventHandler(
+	'fireDispatch:removePlayer',
+	function(playerSource)
+		if source > 0 then
+			return
+		end
+
+		dispatchPlayers[playerSource] = nil
+	end
+)
+
+RegisterNetEvent('fireDispatch:create')
+AddEventHandler(
+	'fireDispatch:create',
+	createDispatch
+)
+
+--================================--
+--          WHITELIST             --
 --================================--
 
 function checkWhitelist(serverId)
@@ -77,10 +135,6 @@ end
 
 function isWhitelisted(source)
 	return (source > 0 and whitelist[source] == true)
-end
-
-function removeFromActiveWhitelist()
-	whitelist[source] = nil
 end
 
 function addToWhitelist(serverId, steamId)
@@ -137,10 +191,19 @@ AddEventHandler(
 	checkWhitelist
 )
 
+--================================--
+--           CLEAN-UP             --
+--================================--
+
+function onPlayerDropped()
+	whitelist[source] = nil
+	removeFromDispatch(source)
+end
+
 RegisterNetEvent('playerDropped')
 AddEventHandler(
 	'playerDropped',
-	removeFromActiveWhitelist
+	onPlayerDropped
 )
 
 --================================--
@@ -165,7 +228,7 @@ RegisterCommand(
 
 		if args[3] == "true" then
 			Citizen.SetTimeout(
-				Config.DispatchTimeout,
+				Config.Dispatch.timeout,
 				function()
 					TriggerClientEvent('fd:dispatch', _source, coords)
 				end
@@ -347,7 +410,7 @@ RegisterCommand(
 		if registeredFires[registeredFireID].dispatchCoords then
 			local dispatchCoords = registeredFires[registeredFireID].dispatchCoords
 			Citizen.SetTimeout(
-				Config.DispatchTimeout,
+				Config.Dispatch.timeout,
 				function()
 					TriggerClientEvent('fd:dispatch', _source, dispatchCoords)
 				end
@@ -442,6 +505,37 @@ RegisterCommand(
 	function(source, args, rawCommand)
 		saveWhitelist()
 		sendMessage(source, "Saved whitelist.")
+	end,
+	true
+)
+
+RegisterCommand(
+	'firedispatch',
+	function(source, args, rawCommand)
+		local _source = source
+		local action = args[1]
+		local serverId = tonumber(args[2])
+
+		if not (action and serverId) then
+			return
+		end
+
+		local identifier = GetPlayerIdentifier(serverId, 0)
+
+		if not identifier then
+			sendMessage(source, "Player not online.")
+			return
+		end
+
+		if action == "add" then
+			addToDispatch(serverId)
+			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
+		elseif action == "remove" then
+			removeFromWhitelist(serverId, identifier)
+			sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
+		else
+			sendMessage(source, "Invalid action.")
+		end
 	end,
 	true
 )
@@ -546,13 +640,14 @@ function registerFire(coords)
 	return registeredFireID
 end
 
-function sendMessage(source, text)
+function sendMessage(source, text, customName)
 	TriggerClientEvent(
 		"chat:addMessage",
 		source,
 		{
 			templateId = "firescript",
 			args = {
+				((customName ~= nil) and customName or "FireScript v1.5"),
 				text
 			}
 		}
