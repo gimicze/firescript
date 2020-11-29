@@ -15,180 +15,31 @@ local lastDispatchNumber = 0
 local dispatchPlayers = {}
 
 --================================--
---           FIRE SYNC            --
+--          INITIALIZE            --
 --================================--
 
-RegisterNetEvent('fireManager:requestSync')
-AddEventHandler(
-	'fireManager:requestSync',
-	function()
-		if source > 0 then
-			TriggerClientEvent('fireClient:synchronizeFlames', source, activeFires)
-		end
-	end
-)
-
-RegisterNetEvent('fireManager:createFlame')
-AddEventHandler(
-	'fireManager:createFlame',
-	createFlame
-)
-
-RegisterNetEvent('fireManager:createFire')
-AddEventHandler(
-	'fireManager:createFire',
-	createFire
-)
-
-RegisterNetEvent('fireManager:removeFire')
-AddEventHandler(
-	'fireManager:removeFire',
-	removeFire
-)
-
-RegisterNetEvent('fireManager:removeAllFires')
-AddEventHandler(
-	'fireManager:removeAllFires',
-	removeAllFires
-)
-
-RegisterNetEvent('fireManager:removeFlame')
-AddEventHandler(
-	'fireManager:removeFlame',
-	function(fireIndex, flameIndex)
-		removeFlame(fireIndex, flameIndex)
-	end
-)
-
---================================--
---           DISPATCH             --
---================================--
-
-function addToDispatch(source)
-	dispatchPlayers[source] = true
-end
-
-function removeFromDispatch(source)
-	dispatchPlayers[source] = nil
-end
-
-function createDispatch(text, coords)
-	if not (text and coords) then
-		return
-	end
-
-	lastDispatchNumber = lastDispatchNumber + 1
-
-	for k, v in pairs(dispatchPlayers) do
-		sendMessage(k, text, ("Dispatch (#%s)"):format(lastDispatchNumber))
-		TriggerClientEvent('fireClient:createDispatch', k, lastDispatchNumber, coords)
+function onResourceStart(resourceName)
+	if (GetCurrentResourceName() == resourceName) then
+		loadWhitelist()
 	end
 end
 
-RegisterNetEvent('fireDispatch:registerPlayer')
-AddEventHandler(
-	'fireDispatch:registerPlayer',
-	function(playerSource)
-		if source > 0 then
-			return
-		end
-
-		dispatchPlayers[playerSource] = true
+function onResourceStop(resourceName)
+	if (GetCurrentResourceName() == resourceName) then
+		saveWhitelist()
 	end
-)
-
-RegisterNetEvent('fireDispatch:removePlayer')
-AddEventHandler(
-	'fireDispatch:removePlayer',
-	function(playerSource)
-		if source > 0 then
-			return
-		end
-
-		dispatchPlayers[playerSource] = nil
-	end
-)
-
-RegisterNetEvent('fireDispatch:create')
-AddEventHandler(
-	'fireDispatch:create',
-	createDispatch
-)
-
---================================--
---          WHITELIST             --
---================================--
-
-function checkWhitelist(serverId)
-	if serverId then
-		source = serverId
-	end
-	if source > 0 then
-		local steamID = GetPlayerIdentifier(source, 0)
-		if whitelistedPlayers[steamID] == true or IsPlayerAceAllowed(source, "firescript.all") then
-			whitelist[source] = true
-		elseif whitelist[source] ~= nil then
-			whitelist[source] = nil
-		end
-	end
-end
-
-function isWhitelisted(source)
-	return (source > 0 and whitelist[source] == true)
-end
-
-function addToWhitelist(serverId, steamId)
-	whitelist[serverId] = true
-	whitelistedPlayers[steamId] = true
-end
-
-function removeFromWhitelist(serverId, steamId)
-	whitelist[serverId] = nil
-	whitelistedPlayers[steamId] = nil
-end
-
-function loadWhitelist()
-	local resourceName = GetCurrentResourceName()
-	local whitelistFile = json.decode(LoadResourceFile(resourceName, "whitelist.json"))
-	if whitelistFile ~= nil then
-		whitelistedPlayers = whitelistFile
-		for _, playerId in ipairs(GetPlayers()) do
-			checkWhitelist(tonumber(playerId))
-		end
-	else
-		SaveResourceFile(resourceName, "whitelist.json", json.encode({}), -1)
-	end
-end
-
-function saveWhitelist()
-	local resourceName = GetCurrentResourceName()
-	SaveResourceFile(resourceName, "whitelist.json", json.encode(whitelistedPlayers), -1)
 end
 
 RegisterNetEvent('onResourceStart')
 AddEventHandler(
 	'onResourceStart',
-	function(resourceName)
-		if (GetCurrentResourceName() == resourceName) then
-			loadWhitelist()
-		end
-	end
+	onResourceStart
 )
 
 RegisterNetEvent('onResourceStop')
 AddEventHandler(
 	'onResourceStop',
-	function(resourceName)
-		if (GetCurrentResourceName() == resourceName) then
-			saveWhitelist()
-		end
-	end
-)
-
-RegisterNetEvent('fireManager:checkWhitelist')
-AddEventHandler(
-	'fireManager:checkWhitelist',
-	checkWhitelist
+	onResourceStop
 )
 
 --================================--
@@ -205,6 +56,7 @@ AddEventHandler(
 	'playerDropped',
 	onPlayerDropped
 )
+
 
 --================================--
 --           COMMANDS             --
@@ -544,6 +396,8 @@ RegisterCommand(
 --           FUNCTIONS            --
 --================================--
 
+-- Fire essentials
+
 function createFire(coords, maximumSpread, spreadChance)
 	maximumSpread = maximumSpread and maximumSpread or Config.Fire.maximumSpreads
 	spreadChance = spreadChance and spreadChance or Config.Fire.fireSpreadChance
@@ -640,6 +494,77 @@ function registerFire(coords)
 	return registeredFireID
 end
 
+-- Whitelist
+
+function checkWhitelist(serverId)
+	if serverId then
+		source = serverId
+	end
+	if source > 0 then
+		local steamID = GetPlayerIdentifier(source, 0)
+		if whitelistedPlayers[steamID] == true or IsPlayerAceAllowed(source, "firescript.all") then
+			whitelist[source] = true
+		elseif whitelist[source] ~= nil then
+			whitelist[source] = nil
+		end
+	end
+end
+
+function isWhitelisted(source)
+	return (source > 0 and whitelist[source] == true)
+end
+
+function addToWhitelist(serverId, steamId)
+	whitelist[serverId] = true
+	whitelistedPlayers[steamId] = true
+end
+
+function removeFromWhitelist(serverId, steamId)
+	whitelist[serverId] = nil
+	whitelistedPlayers[steamId] = nil
+end
+
+function loadWhitelist()
+	local whitelistFile = loadData("whitelist")
+	if whitelistFile ~= nil then
+		whitelistedPlayers = whitelistFile
+		for _, playerId in ipairs(GetPlayers()) do
+			checkWhitelist(tonumber(playerId))
+		end
+	else
+		saveData({}, "whitelist")
+	end
+end
+
+function saveWhitelist()
+	saveData(whitelistedPlayers, "whitelist")
+end
+
+-- Dispatch
+
+function addToDispatch(source)
+	dispatchPlayers[source] = true
+end
+
+function removeFromDispatch(source)
+	dispatchPlayers[source] = nil
+end
+
+function createDispatch(text, coords)
+	if not (text and coords) then
+		return
+	end
+
+	lastDispatchNumber = lastDispatchNumber + 1
+
+	for k, v in pairs(dispatchPlayers) do
+		sendMessage(k, text, ("Dispatch (#%s)"):format(lastDispatchNumber))
+		TriggerClientEvent('fireClient:createDispatch', k, lastDispatchNumber, coords)
+	end
+end
+
+-- Chat
+
 function sendMessage(source, text, customName)
 	TriggerClientEvent(
 		"chat:addMessage",
@@ -653,6 +578,8 @@ function sendMessage(source, text, customName)
 		}
 	)
 end
+
+-- Table functions
 
 function highestIndex(table, fireIndex)
 	if not table then
@@ -671,3 +598,104 @@ function highestIndex(table, fireIndex)
 
 	return index, count
 end
+
+-- JSON config
+
+function saveData(data, keyword)
+	if type(keyword) ~= "string" then
+		return
+	end
+	SaveResourceFile(GetCurrentResourceName(), keyword .. ".json", json.encode(data), -1)
+end
+
+function loadData(keyword)
+	return json.decode(LoadResourceFile(GetCurrentResourceName(), keyword .. ".json"))
+end
+
+--================================--
+--           FIRE SYNC            --
+--================================--
+
+RegisterNetEvent('fireManager:requestSync')
+AddEventHandler(
+	'fireManager:requestSync',
+	function()
+		if source > 0 then
+			TriggerClientEvent('fireClient:synchronizeFlames', source, activeFires)
+		end
+	end
+)
+
+RegisterNetEvent('fireManager:createFlame')
+AddEventHandler(
+	'fireManager:createFlame',
+	createFlame
+)
+
+RegisterNetEvent('fireManager:createFire')
+AddEventHandler(
+	'fireManager:createFire',
+	createFire
+)
+
+RegisterNetEvent('fireManager:removeFire')
+AddEventHandler(
+	'fireManager:removeFire',
+	removeFire
+)
+
+RegisterNetEvent('fireManager:removeAllFires')
+AddEventHandler(
+	'fireManager:removeAllFires',
+	removeAllFires
+)
+
+RegisterNetEvent('fireManager:removeFlame')
+AddEventHandler(
+	'fireManager:removeFlame',
+	removeFlame
+)
+
+--================================--
+--           DISPATCH             --
+--================================--
+
+RegisterNetEvent('fireDispatch:registerPlayer')
+AddEventHandler(
+	'fireDispatch:registerPlayer',
+	function(playerSource)
+		if source > 0 then
+			return
+		end
+
+		dispatchPlayers[playerSource] = true
+	end
+)
+
+RegisterNetEvent('fireDispatch:removePlayer')
+AddEventHandler(
+	'fireDispatch:removePlayer',
+	function(playerSource)
+		if source > 0 then
+			return
+		end
+
+		dispatchPlayers[playerSource] = nil
+	end
+)
+
+RegisterNetEvent('fireDispatch:create')
+AddEventHandler(
+	'fireDispatch:create',
+	createDispatch
+)
+
+--================================--
+--          WHITELIST             --
+--================================--
+
+RegisterNetEvent('fireManager:checkWhitelist')
+AddEventHandler(
+	'fireManager:checkWhitelist',
+	checkWhitelist
+)

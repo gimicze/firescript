@@ -12,7 +12,127 @@ local dispatchBlips = {}
 
 local syncInProgress = false
 
+--================================--
+--              CHAT              --
+--================================--
+
 TriggerEvent("chat:addTemplate", "firescript", '<div style="text-indent: 0 !important; padding: 0.5vw; margin: 0.05vw; color: rgba(255,255,255,0.9);background-color: rgba(250,26,56, 0.8); border-radius: 4px;"><b>{0}</b> {1} </div>')
+
+TriggerEvent('chat:addSuggestion', '/startfire', 'Creates a fire', {
+	{
+		name = "spread",
+		help = "How many times can the fire spread?"
+	},
+	{
+		name = "chance",
+		help = "0 - 100; How quickly the fire spreads?"
+	},
+	{
+		name = "dispatch",
+		help = "true or false (default false)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
+	{
+		name = "index",
+		help = "The fire's index"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
+
+TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration', {
+	{
+		name = "dispatch",
+		help = "Should the fire trigger dispatch? (default true)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
+	{
+		name = "fireID",
+		help = "The registered fire"
+	},
+	{
+		name = "spread",
+		help = "How many times can the flame spread?"
+	},
+	{
+		name = "chance",
+		help = "How many out of 100 chances should the fire spread? (0-100)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a registered fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	},
+	{
+		name = "flameID",
+		help = "The flame ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a register fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/stopregisteredfire', 'Stops a registered fire', {
+	{
+		name = "fireID",
+		help = "The fire ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/firewl', 'Manages the fire script whitelist', {
+	{
+		name = "action",
+		help = "add / remove"
+	},
+	{
+		name = "playerID",
+		help = "The player's server ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/firewlreload', 'Reloads the whitelist from the config')
+
+TriggerEvent('chat:addSuggestion', '/firedispatch', 'Manages the fire script dispatch subscribers', {
+	{
+		name = "action",
+		help = "add / remove"
+	},
+	{
+		name = "playerID",
+		help = "The player's server ID"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/remindme', 'Sets the GPS waypoint to the specified dispatch call.', {
+	{
+		name = "dispatchID",
+		help = "The dispatch identifier (number)"
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/cleardispatch', 'Clears navigation to the last dispatch call.', {
+	{
+		name = "dispatchID",
+		help = "(optional) The dispatch identifier, if filled in, the call's blip will be removed."
+	}
+})
 
 --================================--
 --        SYNC ON CONNECT         --
@@ -34,123 +154,6 @@ AddEventHandler(
 		if resourceName == GetCurrentResourceName() then
 			-- Check the command whitelist
 			TriggerServerEvent('fireManager:checkWhitelist')
-
-			-- Chat suggestions
-			TriggerEvent('chat:addSuggestion', '/startfire', 'Creates a fire', {
-				{
-					name = "spread",
-					help = "How many times can the fire spread?"
-				},
-				{
-					name = "chance",
-					help = "0 - 100; How quickly the fire spreads?"
-				},
-				{
-					name = "dispatch",
-					help = "true or false (default false)"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
-				{
-					name = "index",
-					help = "The fire's index"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
-			
-			TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration', {
-				{
-					name = "dispatch",
-					help = "Should the fire trigger dispatch? (default true)"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
-				{
-					name = "fireID",
-					help = "The registered fire"
-				},
-				{
-					name = "spread",
-					help = "How many times can the flame spread?"
-				},
-				{
-					name = "chance",
-					help = "How many out of 100 chances should the fire spread? (0-100)"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a registered fire', {
-				{
-					name = "fireID",
-					help = "The fire ID"
-				},
-				{
-					name = "flameID",
-					help = "The flame ID"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a register fire', {
-				{
-					name = "fireID",
-					help = "The fire ID"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered fire', {
-				{
-					name = "fireID",
-					help = "The fire ID"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/stopregisteredfire', 'Stops a registered fire', {
-				{
-					name = "fireID",
-					help = "The fire ID"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/firewl', 'Manages the fire script whitelist', {
-				{
-					name = "action",
-					help = "add / remove"
-				},
-				{
-					name = "playerID",
-					help = "The player's server ID"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/firewlreload', 'Reloads the whitelist from the config')
-			
-			TriggerEvent('chat:addSuggestion', '/firedispatch', 'Manages the fire script dispatch subscribers', {
-				{
-					name = "action",
-					help = "add / remove"
-				},
-				{
-					name = "playerID",
-					help = "The player's server ID"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/remindme', 'Sets the GPS waypoint to the specified dispatch call.', {
-				{
-					name = "dispatchID",
-					help = "The dispatch identifier (number)"
-				}
-			})
-			
-			TriggerEvent('chat:addSuggestion', '/cleardispatch', 'Clears navigation to the last dispatch call.', {
-				{
-					name = "dispatchID",
-					help = "(optional) The dispatch identifier, if filled in, the call's blip will be removed."
-				}
-			})
 		end
 	end
 )
@@ -175,6 +178,7 @@ end
 
 function removeFlame(fireIndex, flameIndex)
 	if not (fireIndex and flameIndex and activeFires[fireIndex]) then
+		print("Attempting to remove a non-existent fire. (" .. fireIndex .. ")")
 		return
 	end
 	if activeFires[fireIndex].flames[flameIndex] and activeFires[fireIndex].flames[flameIndex] ~= 0 then
@@ -481,7 +485,7 @@ Citizen.CreateThread(
 		end
 		
 		while true do
-			Citizen.Wait(1000)
+			Citizen.Wait(1500)
 			for fireIndex, v in pairs(activeFires) do
 				if countElements(v.particles) ~= 0 then
 					for flameIndex, _v in pairs(activeFires[fireIndex].particles) do
@@ -560,7 +564,7 @@ Citizen.CreateThread(
 					end
 				end
 			end
-			Citizen.Wait(1000)
+			Citizen.Wait(1500)
 		end
 	end
 )
