@@ -64,7 +64,7 @@ AddEventHandler(
 RegisterNetEvent('fireManager:command:startfire')
 AddEventHandler(
 	'fireManager:command:startfire',
-	function(coords, maxSpread, chance)
+	function(coords, maxSpread, chance, triggerDispatch)
 		if not isWhitelisted(source) then
 			return
 		end
@@ -77,7 +77,7 @@ AddEventHandler(
 
 		sendMessage(source, "Created fire #" .. fireIndex)
 
-		if args[3] == "true" then
+		if triggerDispatch then
 			Citizen.SetTimeout(
 				Config.Dispatch.timeout,
 				function()

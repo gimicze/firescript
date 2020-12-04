@@ -383,8 +383,9 @@ RegisterCommand(
 	function(source, args, rawCommand)
 		local maxSpread = tonumber(args[1])
 		local probability = tonumber(args[2])
+		local triggerDispatch = args[3] == "true"
 
-		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability)
+		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch)
 	end,
 	false
 )
@@ -392,7 +393,7 @@ RegisterCommand(
 RegisterCommand(
 	'registerfire',
 	function(source, args, rawCommand)
-		local triggerDispatch = args[1] == true or args[1] == nil
+		local triggerDispatch = args[1] == "true" or args[1] == nil
 
 		TriggerServerEvent('fireManager:command:registerfire', GetEntityCoords(GetPlayerPed(-1)), triggerDispatch)
 	end,
