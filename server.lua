@@ -57,24 +57,23 @@ AddEventHandler(
 	onPlayerDropped
 )
 
-
 --================================--
 --           COMMANDS             --
 --================================--
 
-RegisterCommand(
-	'startfire',
-	function(source, args, rawCommand)
+RegisterNetEvent('fireManager:command:startfire')
+AddEventHandler(
+	'fireManager:command:startfire',
+	function(coords, maxSpread, chance)
 		if not isWhitelisted(source) then
 			return
 		end
-		local coords = GetEntityCoords(GetPlayerPed(source))
 		local _source = source
 
-		local maxSpread = (args[1] ~= nil and tonumber(args[1]) ~= nil) and tonumber(args[1]) or Config.Fire.maximumSpreads
-		local probability = (args[2] ~= nil and tonumber(args[2]) ~= nil) and tonumber(args[2]) or Config.Fire.fireSpreadChance
+		local maxSpread = (maxSpread ~= nil and tonumber(maxSpread) ~= nil) and tonumber(maxSpread) or Config.Fire.maximumSpreads
+		local chance = (chance ~= nil and tonumber(chance) ~= nil) and tonumber(chance) or Config.Fire.fireSpreadChance
 
-		local fireIndex = createFire(coords, maxSpread, probability)
+		local fireIndex = createFire(coords, maxSpread, chance)
 
 		sendMessage(source, "Created fire #" .. fireIndex)
 
@@ -86,8 +85,51 @@ RegisterCommand(
 				end
 			)
 		end
-	end,
-	false
+	end
+)
+
+RegisterNetEvent('fireManager:command:registerfire')
+AddEventHandler(
+	'fireManager:command:registerfire',
+	function(coords, triggerDispatch)
+		if not isWhitelisted(source) then
+			return
+		end
+
+		local registeredFireID = registerFire(triggerDispatch and coords or nil)
+
+		sendMessage(source, "Registered fire #" .. registeredFireID)
+	end
+)
+
+RegisterNetEvent('fireManager:command:addflame')
+AddEventHandler(
+	'fireManager:command:addflame',
+	function(registeredFireID, coords, spread, chance)
+		if not isWhitelisted(source) then
+			return
+		end
+		local registeredFireID = tonumber(registeredFireID)
+		local spread = tonumber(spread)
+		local chance = tonumber(chance)
+
+		if not (coords and registeredFireID and spread and chance) then
+			return
+		end
+
+		if not registeredFires[registeredFireID] then
+			sendMessage(source, "No such fire registered.")
+			return
+		end
+
+		local flameID = highestIndex(registeredFires[registeredFireID].flames) + 1
+		registeredFires[registeredFireID].flames[flameID] = {}
+		registeredFires[registeredFireID].flames[flameID].coords = coords
+		registeredFires[registeredFireID].flames[flameID].spread = spread
+		registeredFires[registeredFireID].flames[flameID].chance = chance
+
+		sendMessage(source, "Registered flame #" .. flameID)
+	end
 )
 
 RegisterCommand(
@@ -129,57 +171,6 @@ RegisterCommand(
 			layout = "centerRight",
 			queue = "fire"
 		})
-	end,
-	false
-)
-
-RegisterCommand(
-	'registerfire',
-	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
-			return
-		end
-		local coords = nil
-
-		if not (args[1] == nil or args[1] == "false") then
-			coords = GetEntityCoords(GetPlayerPed(source))
-		end
-
-		local registeredFireID = registerFire(coords)
-
-		sendMessage(source, "Registered fire #" .. registeredFireID)
-	end,
-	false
-)
-
-RegisterCommand(
-	'addflame',
-	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
-			return
-		end
-		local registeredFireID = tonumber(args[1])
-		local spread = tonumber(args[2])
-		local chance = tonumber(args[3])
-
-		if not (registeredFireID and spread and chance) then
-			return
-		end
-
-		if not registeredFires[registeredFireID] then
-			sendMessage(source, "No such fire registered.")
-			return
-		end
-
-		local coords = GetEntityCoords(GetPlayerPed(source))
-
-		local flameID = highestIndex(registeredFires[registeredFireID].flames) + 1
-		registeredFires[registeredFireID].flames[flameID] = {}
-		registeredFires[registeredFireID].flames[flameID].coords = coords
-		registeredFires[registeredFireID].flames[flameID].spread = spread
-		registeredFires[registeredFireID].flames[flameID].chance = chance
-
-		sendMessage(source, "Registered flame #" .. flameID)
 	end,
 	false
 )

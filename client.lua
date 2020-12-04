@@ -378,6 +378,41 @@ RegisterCommand(
 	false
 )
 
+RegisterCommand(
+	'startfire',
+	function(source, args, rawCommand)
+		local maxSpread = tonumber(args[1])
+		local probability = tonumber(args[2])
+
+		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability)
+	end,
+	false
+)
+
+RegisterCommand(
+	'registerfire',
+	function(source, args, rawCommand)
+		local triggerDispatch = args[1] == true or args[1] == nil
+
+		TriggerServerEvent('fireManager:command:registerfire', GetEntityCoords(GetPlayerPed(-1)), triggerDispatch)
+	end,
+	false
+)
+
+RegisterCommand(
+	'addflame',
+	function(source, args, rawCommand)
+		local registeredFireID = tonumber(args[1])
+		local spread = tonumber(args[2])
+		local chance = tonumber(args[3])
+
+		if registeredFireID and spread and chance then
+			TriggerServerEvent('fireManager:command:addflame', registeredFireID, GetEntityCoords(GetPlayerPed(-1)), spread, chance)
+		end
+	end,
+	false
+)
+
 --================================--
 --             EVENTS             --
 --================================--
