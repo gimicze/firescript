@@ -1,5 +1,5 @@
 --================================--
---        FIRE SCRIPT v1.5        --
+--        FIRE SCRIPT v1.6        --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -178,7 +178,6 @@ end
 
 function removeFlame(fireIndex, flameIndex)
 	if not (fireIndex and flameIndex and activeFires[fireIndex]) then
-		print("Attempting to remove a non-existent fire. (" .. fireIndex .. ")")
 		return
 	end
 	if activeFires[fireIndex].flames[flameIndex] and activeFires[fireIndex].flames[flameIndex] ~= 0 then
@@ -548,7 +547,7 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(activeFires) do
 				for flameIndex, coords in pairs(v.flameCoords) do
 					Citizen.Wait(10)
-					if not v.flames[flameIndex] and #(pedCoords - coords) < 300.0 then
+					if not v.flames[flameIndex] and #(coords - pedCoords) < 300.0 then
 						local z = coords.z
 		
 						repeat
@@ -562,41 +561,46 @@ Citizen.CreateThread(
 	
 						v.flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
 
-						v.flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
+						if v.flames[flameIndex] then -- Make sure the fire has started properly
+							v.flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 		
-						SetPtfxAssetNextCall("scr_agencyheistb")
+							SetPtfxAssetNextCall("scr_agencyheistb")
+							
+							v.particles[flameIndex] = StartParticleFxLoopedAtCoord(
+								"scr_env_agency3b_smoke",
+								coords.x,
+								coords.y,
+								z + 1.0,
+								0.0,
+								0.0,
+								0.0,
+								1.0,
+								false,
+								false,
+								false,
+								false
+							)
 						
-						v.particles[flameIndex] = StartParticleFxLoopedAtCoord(
-							"scr_env_agency3b_smoke",
-							coords.x,
-							coords.y,
-							z + 1.0,
-							0.0,
-							0.0,
-							0.0,
-							1.0,
-							false,
-							false,
-							false,
-							false
-						)
-					
-						SetPtfxAssetNextCall("scr_trevor3")
-					
-						v.flameParticles[flameIndex] = StartParticleFxLoopedAtCoord(
-							"scr_trev3_trailer_plume",
-							coords.x,
-							coords.y,
-							z + 1.2,
-							0.0,
-							0.0,
-							0.0,
-							1.0,
-							false,
-							false,
-							false,
-							false
-						)
+							SetPtfxAssetNextCall("scr_trevor3")
+						
+							v.flameParticles[flameIndex] = StartParticleFxLoopedAtCoord(
+								"scr_trev3_trailer_plume",
+								coords.x,
+								coords.y,
+								z + 1.2,
+								0.0,
+								0.0,
+								0.0,
+								1.0,
+								false,
+								false,
+								false,
+								false
+							)
+	
+						else
+							v.flames[flameIndex] = nil
+						end
 					end
 				end
 			end

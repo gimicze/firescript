@@ -1,5 +1,5 @@
 --================================--
---        FIRE SCRIPT v1.5        --
+--        FIRE SCRIPT v1.6        --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -21,12 +21,14 @@ local dispatchPlayers = {}
 function onResourceStart(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
 		loadWhitelist()
+		loadFires()
 	end
 end
 
 function onResourceStop(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
 		saveWhitelist()
+		saveFires()
 	end
 end
 
@@ -409,7 +411,7 @@ function createFire(coords, maximumSpread, spreadChance)
 	Citizen.CreateThread(
 		function()
 			while spread do
-				Citizen.Wait(1000)
+				Citizen.Wait(2000)
 				local index, flames = highestIndex(activeFires, fireIndex)
 				if flames ~= 0 and flames <= maximumSpread then
 					for k, v in ipairs(activeFires[fireIndex]) do
@@ -531,6 +533,26 @@ function saveWhitelist()
 	saveData(whitelistedPlayers, "whitelist")
 end
 
+-- Saving registered fires
+
+function saveFires()
+	saveData(registeredFires, "fires")
+end
+
+function loadFires()
+	local firesFile = loadData("fires")
+	if firesFile ~= nil then
+		for index, fire in pairs(firesFile) do
+			for _, flame in pairs(fire.flames) do
+				flame.coords = vector3(flame.coords.x, flame.coords.y, flame.coords.z)
+			end
+		end
+		registeredFires = firesFile
+	else
+		saveData({}, "fires")
+	end
+end
+
 -- Dispatch
 
 function addToDispatch(source)
@@ -600,7 +622,8 @@ function saveData(data, keyword)
 end
 
 function loadData(keyword)
-	return json.decode(LoadResourceFile(GetCurrentResourceName(), keyword .. ".json"))
+	local fileContents = LoadResourceFile(GetCurrentResourceName(), keyword .. ".json")
+	return fileContents and json.decode(fileContents) or nil
 end
 
 --================================--
