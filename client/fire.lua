@@ -35,7 +35,6 @@ function Fire:removeFlame(fireIndex, flameIndex)
 		return
 	end
 	if self.active[fireIndex].flames[flameIndex] and self.active[fireIndex].flames[flameIndex] > -1 then
-        print("Removed", fireIndex, flameIndex, self.active[fireIndex].flames[flameIndex])
 		RemoveScriptFire(self.active[fireIndex].flames[flameIndex])
         self.active[fireIndex].flames[flameIndex] = nil
     end
