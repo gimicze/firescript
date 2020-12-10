@@ -4,11 +4,29 @@
 --      License: GNU GPL 3.0      --
 --================================--
 
-local activeFires = {}
-local removedFires = {}
+local Fire = {
+	active = {},
+	removed = {},
+	__index = self,
+	init = function(o)
+		o = o or {active = {}, removed = {}}
+		setmetatable(o, self)
+		self.__index = self
+		return o
+	end
+}
 
-local lastCall = nil
-local dispatchBlips = {}
+local Dispatch = {
+	lastCall = nil,
+	blips = {},
+	__index = self,
+	init = function(o)
+		o = o or {active = {}, removed = {}}
+		setmetatable(o, self)
+		self.__index = self
+		return o
+	end
+}
 
 local syncInProgress = false
 
@@ -162,71 +180,71 @@ AddEventHandler(
 --           FUNCTIONS            --
 --================================--
 
-function createFlame(fireIndex, flameIndex, coords)
-	if not removedFires[fireIndex] then
-		if activeFires[fireIndex] == nil then
-			activeFires[fireIndex] = {
+function Fire:createFlame(fireIndex, flameIndex, coords)
+	if not self.removed[fireIndex] then
+		if self.active[fireIndex] == nil then
+			self.active[fireIndex] = {
 				flameCoords = {},
 				flames = {},
 				particles = {},
 				flameParticles = {}
 			}
 		end
-		activeFires[fireIndex].flameCoords[flameIndex] = coords
+		self.active[fireIndex].flameCoords[flameIndex] = coords
 	end
 end
 
-function removeFlame(fireIndex, flameIndex)
-	if not (fireIndex and flameIndex and activeFires[fireIndex]) then
+function Fire:removeFlame(fireIndex, flameIndex)
+	if not (fireIndex and flameIndex and self.active[fireIndex]) then
 		return
 	end
-	if activeFires[fireIndex].flames[flameIndex] and activeFires[fireIndex].flames[flameIndex] ~= 0 then
-		RemoveScriptFire(activeFires[fireIndex].flames[flameIndex])
-		activeFires[fireIndex].flames[flameIndex] = nil
+	if self.active[fireIndex].flames[flameIndex] and self.active[fireIndex].flames[flameIndex] ~= 0 then
+		RemoveScriptFire(self.active[fireIndex].flames[flameIndex])
+		self.active[fireIndex].flames[flameIndex] = nil
 	end
-	if activeFires[fireIndex].particles[flameIndex] and activeFires[fireIndex].particles[flameIndex] ~= 0 then
-		local particles = activeFires[fireIndex].particles[flameIndex]
+	if self.active[fireIndex].particles[flameIndex] and self.active[fireIndex].particles[flameIndex] ~= 0 then
+		local particles = self.active[fireIndex].particles[flameIndex]
 		Citizen.SetTimeout(
 			5000,
 			function()
 				StopParticleFxLooped(particles, false)
 			end
 		)
-		activeFires[fireIndex].particles[flameIndex] = nil
+		self.active[fireIndex].particles[flameIndex] = nil
 	end
-	if activeFires[fireIndex].flameParticles[flameIndex] and activeFires[fireIndex].flameParticles[flameIndex] ~= 0 then
-		local flameParticles = activeFires[fireIndex].flameParticles[flameIndex]
+	if self.active[fireIndex].flameParticles[flameIndex] and self.active[fireIndex].flameParticles[flameIndex] ~= 0 then
+		local flameParticles = self.active[fireIndex].flameParticles[flameIndex]
 		Citizen.SetTimeout(
 			5000,
 			function()
 				StopParticleFxLooped(flameParticles, false)
 			end
 		)
-		activeFires[fireIndex].flameParticles[flameIndex] = nil
+		self.active[fireIndex].flameParticles[flameIndex] = nil
 	end
-	activeFires[fireIndex].flameCoords[flameIndex] = nil
+	self.active[fireIndex].flameCoords[flameIndex] = nil
 
-	if activeFires[fireIndex] ~= nil and countElements(activeFires[fireIndex].flames) < 1 then
-		activeFires[fireIndex] = nil
-		removedFires[fireIndex] = true
+	if self.active[fireIndex] ~= nil and countElements(self.active[fireIndex].flames) < 1 then
+		self.active[fireIndex] = nil
+		self.removed[fireIndex] = true
 	end
 end
 
-function removeFire(fireIndex, callback)
-	if not (activeFires[fireIndex] and activeFires[fireIndex].particles) then
+function Fire:remove(fireIndex, callback)
+	if not (self.active[fireIndex] and self.active[fireIndex].particles) then
 		return
 	end
 
-	for k, v in pairs(activeFires[fireIndex].flames) do
-		removeFlame(fireIndex, k)
+	for k, v in pairs(self.active[fireIndex].flames) do
+		self:removeFlame(fireIndex, k)
 	end
 
 	Citizen.SetTimeout(
 		200,
 		function()
-			if activeFires[fireIndex] and next(activeFires[fireIndex].flames) ~= nil then
+			if self.active[fireIndex] and next(self.active[fireIndex].flames) ~= nil then
 				print("WARNING: A fire persisted!")
-				removeFire(fireIndex)
+				self:remove(fireIndex)
 			elseif callback then
 				callback(fireIndex)
 			end
@@ -234,13 +252,13 @@ function removeFire(fireIndex, callback)
 	)
 end
 
-function removeAllFires(callback)
-	for k, v in pairs(activeFires) do
-		removeFire(k)
+function Fire:removeAll(callback)
+	for k, v in pairs(self.active) do
+		self:remove(k)
 	end
 
-	activeFires = {}
-	removedFires = {}
+	self.active = {}
+	self.removed = {}
 	
 	if callback then
 		callback()
@@ -276,6 +294,14 @@ end
 
 -- Dispatch system
 
+function Dispatch:renderRoute(coords)
+	ClearGpsMultiRoute()
+
+    StartGpsMultiRoute(6, true, true)
+    AddPointToGpsMultiRoute(unpack(coords))
+    SetGpsMultiRouteRender(true)
+end
+
 function renderDispatchRoute(x, y, z)
     ClearGpsMultiRoute()
 
@@ -284,13 +310,13 @@ function renderDispatchRoute(x, y, z)
     SetGpsMultiRouteRender(true)
 end
 
-function createDispatch(dispatchNumber, coords)
+function Dispatch:create(dispatchNumber, coords)
 	if not tonumber(dispatchNumber) then
 		return
 	end
 
 	-- Create a fire blip
-	local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
+	local blip = AddBlipForCoord(unpack(coords))
 	SetBlipSprite(blip, 436)
 	SetBlipDisplay(blip, 4)
 	SetBlipScale(blip, 1.5)
@@ -300,46 +326,58 @@ function createDispatch(dispatchNumber, coords)
 	AddTextComponentString("Fire #" .. dispatchNumber)
 	EndTextCommandSetBlipName(blip)
 
-	dispatchBlips[dispatchNumber] = {
+	self.blips[dispatchNumber] = {
 		coords = coords,
 		blip = blip
 	}
 
-	renderDispatchRoute(coords.x, coords.y, coords.z)
+	self:renderRoute(coords)
 
 	FlashMinimapDisplay()
 
 	Citizen.SetTimeout(
 		Config.Dispatch.removeBlipTimeout,
 		function()
-			if dispatchBlips[dispatchNumber] and dispatchBlips[dispatchNumber].blip then
+			if self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
 				RemoveBlip(blip)
-				dispatchBlips[dispatchNumber].blip = false
+				self.blips[dispatchNumber].blip = false
 			end
-			if lastDispatch == dispatchNumber then
+			if self.lastCall == dispatchNumber then
 				ClearGpsMultiRoute()
 			end
 		end
 	)
 
 	-- Only store the last 'Config.Dispatch.storeLast' dispatches' data.
-	if countElements(dispatchBlips) > Config.Dispatch.storeLast then
+	if countElements(self.blips) > Config.Dispatch.storeLast then
 		local order = {}
 
-		for k, v in pairs(dispatchBlips) do
+		for k, v in pairs(self.blips) do
 			table.insert(order, k)
 		end
 
 		table.sort(order)
-		dispatchBlips[order[1]] = nil
+		self.blips[order[1]] = nil
 	end
 
-	lastCall = dispatchNumber
+	self.lastCall = dispatchNumber
 end
 
-function remindMe(dispatchNumber)
-	if dispatchBlips[dispatchNumber] then
-		SetNewWaypoint(dispatchBlips[dispatchNumber].coords.x, dispatchBlips[dispatchNumber].coords.y)
+function Dispatch:clear(dispatchNumber)
+	ClearGpsMultiRoute()
+
+	if dispatchNumber and self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
+		RemoveBlip(self.blips[dispatchNumber].blip)
+		self.blips[dispatchNumber].blip = false
+	end
+end
+
+function Dispatch:remind(dispatchNumber)
+	if self.blips[dispatchNumber] then
+		SetNewWaypoint(unpack(self.blips[dispatchNumber].coords.xy))
+		return true
+	else
+		return false
 	end
 end
 
@@ -354,11 +392,14 @@ RegisterCommand(
 		if not dispatchNumber then
 			sendMessage("Invalid argument.")
 			return
-		elseif not dispatchBlips[dispatchNumber] then
+		end
+
+		local success = Dispatch:remind(dispatchNumber)
+
+		if not success then
 			sendMessage("Couldn't find the specified dispatch.")
 			return
 		end
-		remindMe(dispatchNumber)
 	end,
 	false
 )
@@ -366,13 +407,7 @@ RegisterCommand(
 RegisterCommand(
 	'cleardispatch',
 	function(source, args, rawCommand)
-		ClearGpsMultiRoute()
-
-		local dispatchNumber = tonumber(args[1])
-		if dispatchNumber and dispatchBlips[dispatchNumber] and dispatchBlips[dispatchNumber].blip then
-			RemoveBlip(dispatchBlips[dispatchNumber].blip)
-			dispatchBlips[dispatchNumber].blip = false
-		end
+		Dispatch:clear(tonumber(args[1]))
 	end,
 	false
 )
@@ -422,11 +457,11 @@ AddEventHandler(
 	'fireClient:synchronizeFlames',
 	function(fires)
 		syncInProgress = true
-		removeAllFires(
+		Fire:removeAll(
 			function()
 				for k, v in pairs(fires) do
 					for _k, _v in pairs(v) do
-						createFlame(k, _k, _v)
+						Fire:createFlame(k, _k, _v)
 					end
 				end
 				syncInProgress = false
@@ -442,7 +477,7 @@ AddEventHandler(
 		while syncInProgress do
 			Citizen.Wait(10)
 		end
-		removeFire(fireIndex)
+		Fire:remove(fireIndex)
 	end
 )
 
@@ -453,7 +488,7 @@ AddEventHandler(
 		while syncInProgress do
 			Citizen.Wait(10)
 		end
-		removeAllFires()
+		Fire:removeAll()
 	end
 )
 
@@ -464,7 +499,7 @@ AddEventHandler(
 		while syncInProgress do
 			Citizen.Wait(10)
 		end
-		removeFlame(fireIndex, flameIndex)
+		Fire:removeFlame(fireIndex, flameIndex)
     end
 )
 
@@ -473,7 +508,7 @@ AddEventHandler(
     "fireClient:createFlame",
 	function(fireIndex, flameIndex, coords)
 		syncInProgress = true
-		createFlame(fireIndex, flameIndex, coords)
+		Fire:createFlame(fireIndex, flameIndex, coords)
 		syncInProgress = false
     end
 )
@@ -496,7 +531,7 @@ end
 RegisterNetEvent('fireClient:createDispatch')
 AddEventHandler(
 	'fireClient:createDispatch',
-	createDispatch
+	Dispatch:create
 )
 
 --================================--
@@ -521,9 +556,9 @@ Citizen.CreateThread(
 		
 		while true do
 			Citizen.Wait(1500)
-			for fireIndex, v in pairs(activeFires) do
+			for fireIndex, v in pairs(Fire.active) do
 				if countElements(v.particles) ~= 0 then
-					for flameIndex, _v in pairs(activeFires[fireIndex].particles) do
+					for flameIndex, _v in pairs(v.particles) do
 						local isFirePresent = GetNumberOfFiresInRange(
 							v.flameCoords[flameIndex].x,
 							v.flameCoords[flameIndex].y,
@@ -544,7 +579,7 @@ Citizen.CreateThread(
 	function()
 		while true do
 			local pedCoords = GetEntityCoords(GetPlayerPed(-1))
-			for fireIndex, v in pairs(activeFires) do
+			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(v.flameCoords) do
 					Citizen.Wait(10)
 					if not v.flames[flameIndex] and #(coords - pedCoords) < 300.0 then
@@ -618,7 +653,7 @@ if Config.Dispatch.clearGpsRadius and tonumber(Config.Dispatch.clearGpsRadius) t
 		function()
 			while true do
 				Citizen.Wait(5000)
-				if lastCall and dispatchBlips[lastCall] and dispatchBlips[lastCall].blip and #(dispatchBlips[lastCall].coords - GetEntityCoords(GetPlayerPed(-1))) < Config.Dispatch.clearGpsRadius then
+				if Dispatch.lastCall and Dispatch.blips[Dispatch.lastCall] and Dispatch.blips[Dispatch.lastCall].blip and #(Dispatch.blips[Dispatch.lastCall].coords - GetEntityCoords(GetPlayerPed(-1))) < Config.Dispatch.clearGpsRadius then
 					ClearGpsMultiRoute()
 				end
 			end

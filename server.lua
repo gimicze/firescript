@@ -4,15 +4,40 @@
 --      License: GNU GPL 3.0      --
 --================================--
 
-local activeFires = {}
-local registeredFires = {}
-local boundFires = {}
+local Fire = {
+	registered = {},
+	active = {},
+	binds = {},
+	__index = self,
+	init = function(object)
+		object = object or {registered = {}, active = {}, binds = {}}
+		setmetatable(object, self)
+		self.__index = self
+		return object
+	end
+}
 
-local whitelist = {}
-local whitelistedPlayers = {}
+local Whitelist = {
+	players = {},
+	config = {},
+	__index = self,
+	init = function(object)
+		object = object or {players = {}, config = {}}
+		setmetatable(object, self)
+		return object
+	end
+}
 
-local lastDispatchNumber = 0
-local dispatchPlayers = {}
+local Dispatch = {
+	players = {},
+	lastNumber = 0,
+	__index = self,
+	init = function(object)
+		object = object or {players = {}, lastNumber = 0}
+		setmetatable(object, self)
+		return object
+	end
+}
 
 --================================--
 --          INITIALIZE            --
@@ -20,15 +45,15 @@ local dispatchPlayers = {}
 
 function onResourceStart(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
-		loadWhitelist()
-		loadFires()
+		Whitelist:load()
+		Fire:loadRegistered()
 	end
 end
 
 function onResourceStop(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
-		saveWhitelist()
-		saveFires()
+		Whitelist:save()
+		Fire:saveRegistered()
 	end
 end
 
@@ -50,7 +75,7 @@ AddEventHandler(
 
 function onPlayerDropped()
 	whitelist[source] = nil
-	removeFromDispatch(source)
+	Dispatch:removePlayer(source)
 end
 
 RegisterNetEvent('playerDropped')
@@ -67,7 +92,7 @@ RegisterNetEvent('fireManager:command:startfire')
 AddEventHandler(
 	'fireManager:command:startfire',
 	function(coords, maxSpread, chance, triggerDispatch)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local _source = source
@@ -75,7 +100,7 @@ AddEventHandler(
 		local maxSpread = (maxSpread ~= nil and tonumber(maxSpread) ~= nil) and tonumber(maxSpread) or Config.Fire.maximumSpreads
 		local chance = (chance ~= nil and tonumber(chance) ~= nil) and tonumber(chance) or Config.Fire.fireSpreadChance
 
-		local fireIndex = createFire(coords, maxSpread, chance)
+		local fireIndex = Fire:create(coords, maxSpread, chance)
 
 		sendMessage(source, "Created fire #" .. fireIndex)
 
@@ -94,11 +119,11 @@ RegisterNetEvent('fireManager:command:registerfire')
 AddEventHandler(
 	'fireManager:command:registerfire',
 	function(coords, triggerDispatch)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 
-		local registeredFireID = registerFire(triggerDispatch and coords or nil)
+		local registeredFireID = Fire:register(triggerDispatch and coords or nil)
 
 		sendMessage(source, "Registered fire #" .. registeredFireID)
 	end
@@ -108,7 +133,7 @@ RegisterNetEvent('fireManager:command:addflame')
 AddEventHandler(
 	'fireManager:command:addflame',
 	function(registeredFireID, coords, spread, chance)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local registeredFireID = tonumber(registeredFireID)
@@ -119,16 +144,12 @@ AddEventHandler(
 			return
 		end
 
-		if not registeredFires[registeredFireID] then
+		local flameID = Fire:addFlame(registeredFireID, spread, chance)
+
+		if not flameID then
 			sendMessage(source, "No such fire registered.")
 			return
 		end
-
-		local flameID = highestIndex(registeredFires[registeredFireID].flames) + 1
-		registeredFires[registeredFireID].flames[flameID] = {}
-		registeredFires[registeredFireID].flames[flameID].coords = coords
-		registeredFires[registeredFireID].flames[flameID].spread = spread
-		registeredFires[registeredFireID].flames[flameID].chance = chance
 
 		sendMessage(source, "Registered flame #" .. flameID)
 	end
@@ -137,14 +158,14 @@ AddEventHandler(
 RegisterCommand(
 	'stopfire',
 	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local fireIndex = tonumber(args[1])
 		if not fireIndex then
 			return
 		end
-		if removeFire(fireIndex) then
+		if Fire:remove(fireIndex) then
 			sendMessage(source, "Stopping fire #" .. fireIndex)
 			TriggerClientEvent("pNotify:SendNotification", source, {
 				text = "Fire " .. fireIndex .. " going out...",
@@ -161,10 +182,10 @@ RegisterCommand(
 RegisterCommand(
 	'stopallfires',
 	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
-		removeAllFires()
+		Fire:removeAll()
 		sendMessage(source, "Stopping fires")
 		TriggerClientEvent("pNotify:SendNotification", source, {
 			text = "Fires going out...",
@@ -180,7 +201,7 @@ RegisterCommand(
 RegisterCommand(
 	'removeflame',
 	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local registeredFireID = tonumber(args[1])
@@ -190,13 +211,12 @@ RegisterCommand(
 			return
 		end
 
+		local success = Fire:deleteFlame(registeredFireID, flameID)
 
-		if not (registeredFires[registeredFireID] and registeredFires[registeredFireID].flames[flameID]) then
+		if not success then
 			sendMessage(source, "No such fire or flame registered.")
 			return
 		end
-
-		table.remove(registeredFires[registeredFireID].flames, flameID)
 
 		sendMessage(source, "Removed flame #" .. flameID)
 	end,
@@ -206,7 +226,7 @@ RegisterCommand(
 RegisterCommand(
 	'removefire',
 	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local registeredFireID = tonumber(args[1])
@@ -214,12 +234,12 @@ RegisterCommand(
 			return
 		end
 
-		if not registeredFires[registeredFireID] then
+		local success = Fire:deleteRegistered(registeredFireID)
+
+		if not success then
 			sendMessage(source, "No such fire or flame registered.")
 			return
 		end
-
-		registeredFires[registeredFireID] = nil
 
 		sendMessage(source, "Removed fire #" .. registeredFireID)
 	end,
@@ -229,7 +249,7 @@ RegisterCommand(
 RegisterCommand(
 	'startregisteredfire',
 	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local _source = source
@@ -239,27 +259,11 @@ RegisterCommand(
 			return
 		end
 
-		if not registeredFires[registeredFireID] then
+		local success = Fire:startRegistered(registeredFireID)
+
+		if not success then
 			sendMessage(source, "No such fire or flame registered.")
 			return
-		end
-
-		boundFires[registeredFireID] = {}
-
-		for k, v in pairs(registeredFires[registeredFireID].flames) do
-			local fireID = createFire(v.coords, v.spread, v.chance)
-			table.insert(boundFires[registeredFireID], fireID)
-			Citizen.Wait(10)
-		end
-
-		if registeredFires[registeredFireID].dispatchCoords then
-			local dispatchCoords = registeredFires[registeredFireID].dispatchCoords
-			Citizen.SetTimeout(
-				Config.Dispatch.timeout,
-				function()
-					TriggerClientEvent('fd:dispatch', _source, dispatchCoords)
-				end
-			)
 		end
 
 		sendMessage(source, "Started registered fire #" .. registeredFireID)
@@ -270,7 +274,7 @@ RegisterCommand(
 RegisterCommand(
 	'stopregisteredfire',
 	function(source, args, rawCommand)
-		if not isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 		local _source = source
@@ -280,17 +284,12 @@ RegisterCommand(
 			return
 		end
 
-		if not boundFires[registeredFireID] then
-			sendMessage(source, "No such fire or flame registered.")
+		local success = Fire:stopRegistered(registeredFireID)
+
+		if not success then
+			sendMessage(source, "No such fire active.")
 			return
 		end
-
-		for k, v in ipairs(boundFires[registeredFireID]) do
-			removeFire(v)
-			Citizen.Wait(10)
-		end
-
-		boundFires[registeredFireID] = {}
 
 		sendMessage(source, "Stopping registered fire #" .. registeredFireID)
 
@@ -324,10 +323,10 @@ RegisterCommand(
 		end
 
 		if action == "add" then
-			addToWhitelist(serverId, identifier)
+			Whitelist:addPlayer(serverId, identifier)
 			sendMessage(source, ("Added %s to the whitelist."):format(GetPlayerName(serverId)))
 		elseif action == "remove" then
-			removeFromWhitelist(serverId, identifier)
+			Whitelist:removePlayer(serverId, identifier)
 			sendMessage(source, ("Removed %s from the whitelist."):format(GetPlayerName(serverId)))
 		else
 			sendMessage(source, "Invalid action.")
@@ -339,7 +338,7 @@ RegisterCommand(
 RegisterCommand(
 	'firewlreload',
 	function(source, args, rawCommand)
-		loadWhitelist()
+		Whitelist:load()
 		sendMessage(source, "Reloaded whitelist from config.")
 	end,
 	true
@@ -348,7 +347,7 @@ RegisterCommand(
 RegisterCommand(
 	'firewlsave',
 	function(source, args, rawCommand)
-		saveWhitelist()
+		Whitelist:save()
 		sendMessage(source, "Saved whitelist.")
 	end,
 	true
@@ -373,10 +372,10 @@ RegisterCommand(
 		end
 
 		if action == "add" then
-			addToDispatch(serverId)
+			Dispatch:addPlayer(serverId)
 			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
 		elseif action == "remove" then
-			removeFromWhitelist(serverId, identifier)
+			Whitelist:removePlayer(serverId, identifier)
 			sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
 		else
 			sendMessage(source, "Invalid action.")
@@ -391,19 +390,19 @@ RegisterCommand(
 
 -- Fire essentials
 
-function createFire(coords, maximumSpread, spreadChance)
+function Fire:create(coords, maximumSpread, spreadChance)
 	maximumSpread = maximumSpread and maximumSpread or Config.Fire.maximumSpreads
 	spreadChance = spreadChance and spreadChance or Config.Fire.fireSpreadChance
 
-	local fireIndex = highestIndex(activeFires)
+	local fireIndex = highestIndex(self.active)
 	fireIndex = fireIndex + 1
 
-	activeFires[fireIndex] = {
+	self.active[fireIndex] = {
 		maxSpread = maxSpread,
 		spreadChance = spreadChance
 	}
 
-	createFlame(fireIndex, coords)
+	self:createFlame(fireIndex, coords)
 
 	local spread = true
 
@@ -412,22 +411,22 @@ function createFire(coords, maximumSpread, spreadChance)
 		function()
 			while spread do
 				Citizen.Wait(2000)
-				local index, flames = highestIndex(activeFires, fireIndex)
+				local index, flames = highestIndex(self.active, fireIndex)
 				if flames ~= 0 and flames <= maximumSpread then
-					for k, v in ipairs(activeFires[fireIndex]) do
-						index, flames = highestIndex(activeFires, fireIndex)
+					for k, v in ipairs(self.active[fireIndex]) do
+						index, flames = highestIndex(self.active, fireIndex)
 						local rndSpread = math.random(100)
 						if count ~= 0 and flames <= maximumSpread and rndSpread <= spreadChance then
-							local x = activeFires[fireIndex][k].x
-							local y = activeFires[fireIndex][k].y
-							local z = activeFires[fireIndex][k].z
+							local x = self.active[fireIndex][k].x
+							local y = self.active[fireIndex][k].y
+							local z = self.active[fireIndex][k].z
 	
 							local xSpread = math.random(-2, 2)
 							local ySpread = math.random(-2, 2)
 	
 							coords = vector3(x + xSpread, y + ySpread, z)
 	
-							createFlame(fireIndex, coords)
+							self:createFlame(fireIndex, coords)
 						end
 					end
 				elseif flames == 0 then
@@ -437,109 +436,186 @@ function createFire(coords, maximumSpread, spreadChance)
 		end
 	)
 
-	activeFires[fireIndex].stopSpread = function()
+	self.active[fireIndex].stopSpread = function()
 		spread = false
 	end
 
 	return fireIndex
 end
 
-function createFlame(fireIndex, coords)
-	local flameIndex = highestIndex(activeFires, fireIndex) + 1
-	activeFires[fireIndex][flameIndex] = coords
+function Fire:createFlame(fireIndex, coords)
+	local flameIndex = highestIndex(self.active, fireIndex) + 1
+	self.active[fireIndex][flameIndex] = coords
 	TriggerClientEvent('fireClient:createFlame', -1, fireIndex, flameIndex, coords)
 end
 
-function removeFire(fireIndex)
-	if not (activeFires[fireIndex] and next(activeFires[fireIndex])) then
+function Fire:remove(fireIndex)
+	if not (self.active[fireIndex] and next(self.active[fireIndex])) then
 		return false
 	end
-	activeFires[fireIndex].stopSpread()
+	self.active[fireIndex].stopSpread()
 	TriggerClientEvent('fireClient:removeFire', -1, fireIndex)
-	activeFires[fireIndex] = {}
+	self.active[fireIndex] = {}
 	return true
 end
 
-function removeFlame(fireIndex, flameIndex)
-	if activeFires[fireIndex] and activeFires[fireIndex][flameIndex] then
-		activeFires[fireIndex][flameIndex] = nil
+function Fire:removeFlame(fireIndex, flameIndex)
+	if self.active[fireIndex] and self.active[fireIndex][flameIndex] then
+		self.active[fireIndex][flameIndex] = nil
 	end
 	TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
 end
 
-function removeAllFires()
+function Fire:removeAll()
 	TriggerClientEvent('fireClient:removeAllFires', -1)
-	activeFires = {}
-	boundFires = {}
+	for k, v in pairs(self.active) do
+		if v.stopSpread then
+			v.stopSpread()
+		end
+	end
+	self.active = {}
+	self.binds = {}
 end
 
-function registerFire(coords)
-	local registeredFireID = highestIndex(registeredFires) + 1
+function Fire:register(coords)
+	local registeredFireID = highestIndex(self.registered) + 1
 
-	registeredFires[registeredFireID] = {
+	self.registered[registeredFireID] = {
 		flames = {}
 	}
 
 	if coords then
-		registeredFires[registeredFireID].dispatchCoords = coords
+		self.registered[registeredFireID].dispatchCoords = coords
 	end
 
 	return registeredFireID
 end
 
+function Fire:startRegistered(registeredFireID)
+	if not self.registered[registeredFireID] then
+		return false
+	end
+
+	self.binds[registeredFireID] = {}
+
+	for k, v in pairs(self.registered[registeredFireID].flames) do
+		local fireID = Fire:create(v.coords, v.spread, v.chance)
+		table.insert(self.binds[registeredFireID], fireID)
+		Citizen.Wait(10)
+	end
+
+	if self.registered[registeredFireID].dispatchCoords then
+		local dispatchCoords = self.registered[registeredFireID].dispatchCoords
+		Citizen.SetTimeout(
+			Config.Dispatch.timeout,
+			function()
+				TriggerClientEvent('fd:dispatch', _source, dispatchCoords)
+			end
+		)
+	end
+
+	return true
+end
+
+function Fire:stopRegistered()
+	if not self.binds[registeredFireID] then
+		return false
+	end
+
+	for k, v in ipairs(self.binds[registeredFireID]) do
+		Fire:remove(v)
+		Citizen.Wait(10)
+	end
+
+	self.binds[registeredFireID] = {}
+
+	return true
+end
+
+function Fire:deleteRegistered(registeredFireID)
+	if not self.registered[registeredFireID] then
+		return false
+	end
+
+	self.registered[registeredFireID] = nil
+end
+
+function Fire:addFlame(registeredFireID, spread, chance)
+	if not (registeredFireID and spread and chance) or self.registered[registeredFireID] then
+		return false
+	end
+
+	local flameID = highestIndex(self.registered[registeredFireID].flames) + 1
+
+	self.registered[registeredFireID].flames[flameID] = {}
+	self.registered[registeredFireID].flames[flameID].coords = coords
+	self.registered[registeredFireID].flames[flameID].spread = spread
+	self.registered[registeredFireID].flames[flameID].chance = chance
+
+	return flameID
+end
+
+function Fire:deleteFlame(registeredFireID, flameID)
+	if not (self.registered[registeredFireID] and self.registered[registeredFireID].flames[flameID]) then
+		return false
+	end
+
+	table.remove(self.registered[registeredFireID].flames, flameID)
+	return true
+end
+
 -- Whitelist
 
-function checkWhitelist(serverId)
+function Whitelist:check(serverId)
 	if serverId then
 		source = serverId
 	end
+
 	if source > 0 then
 		local steamID = GetPlayerIdentifier(source, 0)
-		if whitelistedPlayers[steamID] == true or IsPlayerAceAllowed(source, "firescript.all") then
-			whitelist[source] = true
-		elseif whitelist[source] ~= nil then
-			whitelist[source] = nil
+		if self.config[steamID] == true or IsPlayerAceAllowed(source, "firescript.all") then
+			self.players[source] = true
+		elseif self.players[source] ~= nil then
+			self.players[source] = nil
 		end
 	end
 end
 
-function isWhitelisted(source)
-	return (source > 0 and whitelist[source] == true)
+function Whitelist:isWhitelisted(serverId)
+	return (serverId > 0 and self.players[serverId] == true)
 end
 
-function addToWhitelist(serverId, steamId)
-	whitelist[serverId] = true
-	whitelistedPlayers[steamId] = true
+function Whitelist:addPlayer(serverId, steamId)
+	self.player[serverId], self.config[steamId] = true, true
 end
 
-function removeFromWhitelist(serverId, steamId)
-	whitelist[serverId] = nil
-	whitelistedPlayers[steamId] = nil
+function Whitelist:removePlayer(serverId, steamId)
+	self.player[serverId], self.config[steamId] = nil, nil
 end
 
-function loadWhitelist()
+function Whitelist:load()
 	local whitelistFile = loadData("whitelist")
 	if whitelistFile ~= nil then
-		whitelistedPlayers = whitelistFile
+		self.config = whitelistFile
 		for _, playerId in ipairs(GetPlayers()) do
-			checkWhitelist(tonumber(playerId))
+			self:check(tonumber(playerId))
 		end
 	else
 		saveData({}, "whitelist")
 	end
 end
 
-function saveWhitelist()
-	saveData(whitelistedPlayers, "whitelist")
+function Whitelist:save()
+	saveData(self.config, "whitelist")
 end
 
 -- Saving registered fires
 
-function saveFires()
-	saveData(registeredFires, "fires")
+function Fire:saveRegistered()
+	saveData(self:registered, "fires")
 end
 
-function loadFires()
+function Fire:loadRegistered()
 	local firesFile = loadData("fires")
 	if firesFile ~= nil then
 		for index, fire in pairs(firesFile) do
@@ -547,7 +623,7 @@ function loadFires()
 				flame.coords = vector3(flame.coords.x, flame.coords.y, flame.coords.z)
 			end
 		end
-		registeredFires = firesFile
+		self.registered = firesFile
 	else
 		saveData({}, "fires")
 	end
@@ -555,25 +631,25 @@ end
 
 -- Dispatch
 
-function addToDispatch(source)
-	dispatchPlayers[source] = true
-end
-
-function removeFromDispatch(source)
-	dispatchPlayers[source] = nil
-end
-
-function createDispatch(text, coords)
+function Dispatch:create(text, coords)
 	if not (text and coords) then
 		return
 	end
 
-	lastDispatchNumber = lastDispatchNumber + 1
+	self.lastNumber = self.lastNumber + 1
 
-	for k, v in pairs(dispatchPlayers) do
-		sendMessage(k, text, ("Dispatch (#%s)"):format(lastDispatchNumber))
-		TriggerClientEvent('fireClient:createDispatch', k, lastDispatchNumber, coords)
+	for k, v in pairs(self.players) do
+		sendMessage(k, text, ("Dispatch (#%s)"):format(self.lastNumber))
+		TriggerClientEvent('fireClient:createDispatch', k, self.lastNumber, coords)
 	end
+end
+
+function Dispatch:addPlayer(serverId)
+	self.players[serverId] = true
+end
+
+function Dispatch:removePlayer(serverId)
+	self.players[serverId] = nil
 end
 
 -- Chat
@@ -635,7 +711,7 @@ AddEventHandler(
 	'fireManager:requestSync',
 	function()
 		if source > 0 then
-			TriggerClientEvent('fireClient:synchronizeFlames', source, activeFires)
+			TriggerClientEvent('fireClient:synchronizeFlames', source, Fire.active)
 		end
 	end
 )
@@ -643,31 +719,31 @@ AddEventHandler(
 RegisterNetEvent('fireManager:createFlame')
 AddEventHandler(
 	'fireManager:createFlame',
-	createFlame
+	Fire:createFlame
 )
 
 RegisterNetEvent('fireManager:createFire')
 AddEventHandler(
 	'fireManager:createFire',
-	createFire
+	Fire:create
 )
 
 RegisterNetEvent('fireManager:removeFire')
 AddEventHandler(
 	'fireManager:removeFire',
-	removeFire
+	Fire:remove
 )
 
 RegisterNetEvent('fireManager:removeAllFires')
 AddEventHandler(
 	'fireManager:removeAllFires',
-	removeAllFires
+	Fire:removeAll
 )
 
 RegisterNetEvent('fireManager:removeFlame')
 AddEventHandler(
 	'fireManager:removeFlame',
-	removeFlame
+	Fire:removeFlame
 )
 
 --================================--
@@ -682,7 +758,7 @@ AddEventHandler(
 			return
 		end
 
-		dispatchPlayers[playerSource] = true
+		Dispatch:addPlayer(playerSource)
 	end
 )
 
@@ -694,14 +770,14 @@ AddEventHandler(
 			return
 		end
 
-		dispatchPlayers[playerSource] = nil
+		Dispatch:removePlayer(playerSource)
 	end
 )
 
 RegisterNetEvent('fireDispatch:create')
 AddEventHandler(
 	'fireDispatch:create',
-	createDispatch
+	Dispatch:create
 )
 
 --================================--
@@ -711,5 +787,5 @@ AddEventHandler(
 RegisterNetEvent('fireManager:checkWhitelist')
 AddEventHandler(
 	'fireManager:checkWhitelist',
-	checkWhitelist
+	Whitelist:check
 )
