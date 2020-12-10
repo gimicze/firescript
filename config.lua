@@ -1,3 +1,9 @@
+--================================--
+--       FIRE SCRIPT v1.6.1       --
+--  by GIMI (+ foregz, Albo1125)  --
+--      License: GNU GPL 3.0      --
+--================================--
+
 Config = {}
 
 Config.Fire = {
@@ -12,5 +18,6 @@ Config.Dispatch = {
     timeout = 15000, -- The amount of time in ms to delay the dispatch after the fire has been created
     storeLast = 5, -- The client will store the last five dispatch coordinates for use with /remindme <dispatchNumber>
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
-    removeBlipTimeout = 400000 -- The amount of time in ms after which the dispatch call blip will be automatically removed
+    removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
+    playSound = true
 }

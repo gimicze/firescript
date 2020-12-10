@@ -1,5 +1,5 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -153,14 +153,6 @@ AddEventHandler(
 )
 
 --================================--
---           FUNCTIONS            --
---================================--
-
-
--- Dispatch system
-
-
---================================--
 --            COMMANDS            --
 --================================--
 
@@ -239,7 +231,7 @@ AddEventHandler(
 		Fire:removeAll(
 			function()
 				for k, v in pairs(fires) do
-					for _k, _v in pairs(v) do
+					for _k, _v in ipairs(v) do
 						Fire:createFlame(k, _k, _v)
 					end
 				end
@@ -310,5 +302,7 @@ end
 RegisterNetEvent('fireClient:createDispatch')
 AddEventHandler(
 	'fireClient:createDispatch',
-	Dispatch:create
+	function(dispatchNumber, coords)
+		Dispatch:create(dispatchNumber, coords)
+	end
 )

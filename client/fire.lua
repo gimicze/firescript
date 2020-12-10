@@ -1,10 +1,10 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
-local Fire = {
+Fire = {
 	active = {},
 	removed = {},
 	__index = self,
@@ -25,7 +25,7 @@ function Fire:createFlame(fireIndex, flameIndex, coords)
 				particles = {},
 				flameParticles = {}
 			}
-		end
+        end
 		self.active[fireIndex].flameCoords[flameIndex] = coords
 	end
 end
@@ -34,10 +34,11 @@ function Fire:removeFlame(fireIndex, flameIndex)
 	if not (fireIndex and flameIndex and self.active[fireIndex]) then
 		return
 	end
-	if self.active[fireIndex].flames[flameIndex] and self.active[fireIndex].flames[flameIndex] ~= 0 then
+	if self.active[fireIndex].flames[flameIndex] and self.active[fireIndex].flames[flameIndex] > -1 then
+        print("Removed", fireIndex, flameIndex, self.active[fireIndex].flames[flameIndex])
 		RemoveScriptFire(self.active[fireIndex].flames[flameIndex])
-		self.active[fireIndex].flames[flameIndex] = nil
-	end
+        self.active[fireIndex].flames[flameIndex] = nil
+    end
 	if self.active[fireIndex].particles[flameIndex] and self.active[fireIndex].particles[flameIndex] ~= 0 then
 		local particles = self.active[fireIndex].particles[flameIndex]
 		Citizen.SetTimeout(
@@ -72,7 +73,8 @@ function Fire:remove(fireIndex, callback)
 	end
 
 	for k, v in pairs(self.active[fireIndex].flames) do
-		self:removeFlame(fireIndex, k)
+        self:removeFlame(fireIndex, k)
+        Citizen.Wait(20)
 	end
 
 	Citizen.SetTimeout(
@@ -91,6 +93,7 @@ end
 function Fire:removeAll(callback)
 	for k, v in pairs(self.active) do
 		self:remove(k)
+        Citizen.Wait(20)
 	end
 
 	self.active = {}
@@ -149,7 +152,7 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(v.flameCoords) do
 					Citizen.Wait(10)
-					if not v.flames[flameIndex] and #(coords - pedCoords) < 300.0 then
+					if not v.particles[flameIndex] and #(coords - pedCoords) < 300.0 then
 						local z = coords.z
 		
 						repeat
@@ -163,16 +166,16 @@ Citizen.CreateThread(
 	
 						v.flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
 
-						if v.flames[flameIndex] then -- Make sure the fire has started properly
+						if v.flames[flameIndex] and v.flames[flameIndex] > -1 then -- Make sure the fire has been spawned properly
 							v.flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
 							
 							v.particles[flameIndex] = StartParticleFxLoopedAtCoord(
 								"scr_env_agency3b_smoke",
-								coords.x,
-								coords.y,
-								z + 1.0,
+								v.flameCoords[flameIndex].x,
+								v.flameCoords[flameIndex].y,
+								v.flameCoords[flameIndex].z + 1.0,
 								0.0,
 								0.0,
 								0.0,
@@ -187,9 +190,9 @@ Citizen.CreateThread(
 						
 							v.flameParticles[flameIndex] = StartParticleFxLoopedAtCoord(
 								"scr_trev3_trailer_plume",
-								coords.x,
-								coords.y,
-								z + 1.2,
+								v.flameCoords[flameIndex].x,
+								v.flameCoords[flameIndex].y,
+								v.flameCoords[flameIndex].z + 1.2,
 								0.0,
 								0.0,
 								0.0,

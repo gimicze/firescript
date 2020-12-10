@@ -1,5 +1,5 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -109,7 +109,7 @@ AddEventHandler(
 			return
 		end
 
-		local flameID = Fire:addFlame(registeredFireID, spread, chance)
+		local flameID = Fire:addFlame(registeredFireID, coords, spread, chance)
 
 		if not flameID then
 			sendMessage(source, "No such fire registered.")
@@ -224,7 +224,7 @@ RegisterCommand(
 			return
 		end
 
-		local success = Fire:startRegistered(registeredFireID)
+		local success = Fire:startRegistered(registeredFireID, source)
 
 		if not success then
 			sendMessage(source, "No such fire or flame registered.")
@@ -366,31 +366,41 @@ AddEventHandler(
 RegisterNetEvent('fireManager:createFlame')
 AddEventHandler(
 	'fireManager:createFlame',
-	Fire:createFlame
+	function(fireIndex, coords)
+		Fire:createFlame(fireIndex, coords)
+	end
 )
 
 RegisterNetEvent('fireManager:createFire')
 AddEventHandler(
 	'fireManager:createFire',
-	Fire:create
+	function()
+		Fire:create(coords, maximumSpread, spreadChance)
+	end
 )
 
 RegisterNetEvent('fireManager:removeFire')
 AddEventHandler(
 	'fireManager:removeFire',
-	Fire:remove
+	function(fireIndex)
+		Fire:remove(fireIndex)
+	end
 )
 
 RegisterNetEvent('fireManager:removeAllFires')
 AddEventHandler(
 	'fireManager:removeAllFires',
-	Fire:removeAll
+	function()
+		Fire:removeAll()
+	end
 )
 
 RegisterNetEvent('fireManager:removeFlame')
 AddEventHandler(
 	'fireManager:removeFlame',
-	Fire:removeFlame
+	function(fireIndex, flameIndex)
+		Fire:removeFlame(fireIndex, flameIndex)
+	end
 )
 
 --================================--
@@ -424,7 +434,9 @@ AddEventHandler(
 RegisterNetEvent('fireDispatch:create')
 AddEventHandler(
 	'fireDispatch:create',
-	Dispatch:create
+	function(text, coords)
+		Dispatch:create(text, coords)
+	end
 )
 
 --================================--
@@ -434,5 +446,11 @@ AddEventHandler(
 RegisterNetEvent('fireManager:checkWhitelist')
 AddEventHandler(
 	'fireManager:checkWhitelist',
-	Whitelist:check
+	function(serverId)
+		if serverId then
+			source = serverId
+		end
+
+		Whitelist:check(source)
+	end
 )

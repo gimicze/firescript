@@ -1,10 +1,10 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
-local Fire = {
+Fire = {
 	registered = {},
 	active = {},
 	binds = {},
@@ -118,12 +118,14 @@ function Fire:register(coords)
 	return registeredFireID
 end
 
-function Fire:startRegistered(registeredFireID)
+function Fire:startRegistered(registeredFireID, dispatchPlayer)
 	if not self.registered[registeredFireID] then
 		return false
 	end
 
-	self.binds[registeredFireID] = {}
+	if not self.binds[registeredFireID] then
+		self.binds[registeredFireID] = {}
+	end
 
 	for k, v in pairs(self.registered[registeredFireID].flames) do
 		local fireID = Fire:create(v.coords, v.spread, v.chance)
@@ -131,12 +133,12 @@ function Fire:startRegistered(registeredFireID)
 		Citizen.Wait(10)
 	end
 
-	if self.registered[registeredFireID].dispatchCoords then
+	if self.registered[registeredFireID].dispatchCoords and dispatchPlayer then
 		local dispatchCoords = self.registered[registeredFireID].dispatchCoords
 		Citizen.SetTimeout(
 			Config.Dispatch.timeout,
 			function()
-				TriggerClientEvent('fd:dispatch', _source, dispatchCoords)
+				TriggerClientEvent('fd:dispatch', dispatchPlayer, dispatchCoords)
 			end
 		)
 	end
@@ -144,17 +146,17 @@ function Fire:startRegistered(registeredFireID)
 	return true
 end
 
-function Fire:stopRegistered()
+function Fire:stopRegistered(registeredFireID)
 	if not self.binds[registeredFireID] then
 		return false
 	end
 
-	for k, v in ipairs(self.binds[registeredFireID]) do
+	for k, v in pairs(self.binds[registeredFireID]) do
 		Fire:remove(v)
 		Citizen.Wait(10)
 	end
 
-	self.binds[registeredFireID] = {}
+	self.binds[registeredFireID] = nil
 
 	return true
 end
@@ -165,10 +167,11 @@ function Fire:deleteRegistered(registeredFireID)
 	end
 
 	self.registered[registeredFireID] = nil
+	return true
 end
 
-function Fire:addFlame(registeredFireID, spread, chance)
-	if not (registeredFireID and spread and chance) or self.registered[registeredFireID] then
+function Fire:addFlame(registeredFireID, coords, spread, chance)
+	if not (registeredFireID and coords and spread and chance and self.registered[registeredFireID]) then
 		return false
 	end
 
@@ -194,7 +197,7 @@ end
 -- Saving registered fires
 
 function Fire:saveRegistered()
-	saveData(self:registered, "fires")
+	saveData(self.registered, "fires")
 end
 
 function Fire:loadRegistered()
@@ -203,6 +206,9 @@ function Fire:loadRegistered()
 		for index, fire in pairs(firesFile) do
 			for _, flame in pairs(fire.flames) do
 				flame.coords = vector3(flame.coords.x, flame.coords.y, flame.coords.z)
+			end
+			if fire.dispatchCoords then
+				fire.dispatchCoords = vector3(fire.dispatchCoords.x, fire.dispatchCoords.y, fire.dispatchCoords.z)
 			end
 		end
 		self.registered = firesFile

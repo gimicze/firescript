@@ -1,10 +1,10 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
-local Dispatch = {
+Dispatch = {
 	lastCall = nil,
 	blips = {},
 	__index = self,
@@ -20,17 +20,17 @@ function Dispatch:renderRoute(coords)
 	ClearGpsMultiRoute()
 
     StartGpsMultiRoute(6, true, true)
-    AddPointToGpsMultiRoute(unpack(coords))
+    AddPointToGpsMultiRoute(table.unpack(coords))
     SetGpsMultiRouteRender(true)
 end
 
 function Dispatch:create(dispatchNumber, coords)
-	if not tonumber(dispatchNumber) then
+	if not (dispatchNumber and coords) then
 		return
 	end
 
 	-- Create a fire blip
-	local blip = AddBlipForCoord(unpack(coords))
+	local blip = AddBlipForCoord(table.unpack(coords))
 	SetBlipSprite(blip, 436)
 	SetBlipDisplay(blip, 4)
 	SetBlipScale(blip, 1.5)
@@ -45,7 +45,18 @@ function Dispatch:create(dispatchNumber, coords)
 		blip = blip
 	}
 
-	self:renderRoute(coords)
+    self:renderRoute(coords)
+    
+    if Config.Dispatch.playSound then
+        Citizen.CreateThread(
+            function()
+                for i = 1, 3 do
+                    PlaySoundFromEntity(-1, "IDLE_BEEP", GetPlayerPed(-1), "EPSILONISM_04_SOUNDSET", 0)
+                    Citizen.Wait(300)
+                end
+            end
+        )
+    end
 
 	FlashMinimapDisplay()
 
@@ -88,7 +99,7 @@ end
 
 function Dispatch:remind(dispatchNumber)
 	if self.blips[dispatchNumber] then
-		SetNewWaypoint(unpack(self.blips[dispatchNumber].coords.xy))
+		SetNewWaypoint(table.unpack(self.blips[dispatchNumber].coords.xy))
 		return true
 	else
 		return false

@@ -1,10 +1,10 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
-local Dispatch = {
+Dispatch = {
 	players = {},
 	lastNumber = 0,
 	__index = self,

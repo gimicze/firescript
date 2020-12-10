@@ -1,10 +1,10 @@
 --================================--
---        FIRE SCRIPT v1.6        --
+--       FIRE SCRIPT v1.6.1       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
-local Whitelist = {
+Whitelist = {
 	players = {},
 	config = {},
 	__index = self,
@@ -16,16 +16,12 @@ local Whitelist = {
 }
 
 function Whitelist:check(serverId)
-	if serverId then
-		source = serverId
-	end
-
-	if source > 0 then
-		local steamID = GetPlayerIdentifier(source, 0)
-		if self.config[steamID] == true or IsPlayerAceAllowed(source, "firescript.all") then
-			self.players[source] = true
-		elseif self.players[source] ~= nil then
-			self.players[source] = nil
+	if serverId > 0 then
+		local steamID = GetPlayerIdentifier(serverId, 0)
+		if self.config[steamID] == true or IsPlayerAceAllowed(serverId, "firescript.all") then
+			self.players[serverId] = true
+		elseif self.players[serverId] ~= nil then
+			self.players[serverId] = nil
 		end
 	end
 end
@@ -35,11 +31,11 @@ function Whitelist:isWhitelisted(serverId)
 end
 
 function Whitelist:addPlayer(serverId, steamId)
-	self.player[serverId], self.config[steamId] = true, true
+	self.players[serverId], self.config[steamId] = true, true
 end
 
 function Whitelist:removePlayer(serverId, steamId)
-	self.player[serverId], self.config[steamId] = nil, nil
+	self.players[serverId], self.config[steamId] = nil, nil
 end
 
 function Whitelist:load()
