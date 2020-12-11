@@ -36,12 +36,7 @@ TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
 
 TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
 
-TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration', {
-	{
-		name = "dispatch",
-		help = "Should the fire trigger dispatch? (default true)"
-	}
-})
+TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration')
 
 TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
 	{
@@ -80,6 +75,10 @@ TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered 
 	{
 		name = "fireID",
 		help = "The fire ID"
+	},
+	{
+		name = "triggerDispatch",
+		help = "true / false - should the script trigger dispatch after spawning the fire? (default false)"
 	}
 })
 
@@ -198,9 +197,7 @@ RegisterCommand(
 RegisterCommand(
 	'registerfire',
 	function(source, args, rawCommand)
-		local triggerDispatch = args[1] == "true" or args[1] == nil
-
-		TriggerServerEvent('fireManager:command:registerfire', GetEntityCoords(GetPlayerPed(-1)), triggerDispatch)
+		TriggerServerEvent('fireManager:command:registerfire', GetEntityCoords(GetPlayerPed(-1)))
 	end,
 	false
 )

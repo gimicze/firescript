@@ -83,12 +83,12 @@ AddEventHandler(
 RegisterNetEvent('fireManager:command:registerfire')
 AddEventHandler(
 	'fireManager:command:registerfire',
-	function(coords, triggerDispatch)
+	function(coords)
 		if not Whitelist:isWhitelisted(source) then
 			return
 		end
 
-		local registeredFireID = Fire:register(triggerDispatch and coords or nil)
+		local registeredFireID = Fire:register(coords)
 
 		sendMessage(source, "Registered fire #" .. registeredFireID)
 	end
@@ -219,12 +219,13 @@ RegisterCommand(
 		end
 		local _source = source
 		local registeredFireID = tonumber(args[1])
+		local triggerDispatch = args[2] == "true"
 
 		if not registeredFireID then
 			return
 		end
 
-		local success = Fire:startRegistered(registeredFireID, source)
+		local success = Fire:startRegistered(registeredFireID, triggerDispatch, source)
 
 		if not success then
 			sendMessage(source, "No such fire or flame registered.")
