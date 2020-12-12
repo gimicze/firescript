@@ -39,7 +39,7 @@ AddEventHandler(
 --================================--
 
 function onPlayerDropped()
-	whitelist[source] = nil
+	Whitlist:removePlayer(source)
 	Dispatch:removePlayer(source)
 end
 
