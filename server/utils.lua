@@ -13,7 +13,7 @@ function sendMessage(source, text, customName)
 		{
 			templateId = "firescript",
 			args = {
-				((customName ~= nil) and customName or "FireScript v1.5"),
+				((customName ~= nil) and customName or "FireScript v1.6"),
 				text
 			}
 		}
