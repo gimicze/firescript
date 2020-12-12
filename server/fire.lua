@@ -133,7 +133,7 @@ function Fire:startRegistered(registeredFireID, triggerDispatch, dispatchPlayer)
 		Citizen.Wait(10)
 	end
 
-	if self.registered[registeredFireID].dispatchCoords and and triggerDispatch dispatchPlayer then
+	if self.registered[registeredFireID].dispatchCoords and triggerDispatch and dispatchPlayer then
 		local dispatchCoords = self.registered[registeredFireID].dispatchCoords
 		Citizen.SetTimeout(
 			Config.Dispatch.timeout,
