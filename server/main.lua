@@ -11,7 +11,9 @@
 Version = "1.6.3"
 LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
 
-checkVersion()
+Citizen.CreateThread(
+	checkVersion
+)
 
 --================================--
 --          INITIALIZE            --
