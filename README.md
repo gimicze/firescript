@@ -2,8 +2,12 @@
 
 A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic fires. As far as I am aware, the only fire script compatible with OneSync Infinity / Beyond.
 
+<details>
+<summary>In-game screenshots</summary>
+
 ![Example fire](https://i.imgur.com/XOLJN7v.png "Example fire")
 ![Example fire](https://i.imgur.com/IYmE6qn.png)
+</details>
 
 # Instalation
 
