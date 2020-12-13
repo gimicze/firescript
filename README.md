@@ -1,12 +1,13 @@
-# FireScript `v1.6`
+![Logo](https://i.imgur.com/5EoYbiv.png)
 
-A FiveM resource allowing an admin to create extinguishable fires.
+A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic fires. As far as I am aware, the only fire script compatible with OneSync Infinity / Beyond.
 
-![alt text](https://i.imgur.com/sZQEmP7.png "Example fire #1")
+![Example fire](https://i.imgur.com/XOLJN7v.png "Example fire")
+![Example fire](https://i.imgur.com/IYmE6qn.png)
 
 # Instalation
 
-1. Drop the folder `firescript` into your resources folder.
+1. Extract the contents into folder called `firescript` into your resources folder.
 2. Start the script: **a)** in the `server.cfg` file; **b)** through the console
 
 ## Starting a resource through console
@@ -21,12 +22,12 @@ start firescript
 ```
 2. Save the file and restart the server.
 
-# Usage
+# Usage & Commands
 
 *Tutorial moved to [the wiki](https://github.com/gimicze/firescript/wiki).*
 
 # Known bugs
-- when a packet loss occurs, the fire might desynchronize, because the events weren't triggered on your client.
+*None! Feel free to open issue when you find any!*
 
 # Credits
 - Albo1125 and foregz - I borrowed some particles from their fire scripts. Thanks!
