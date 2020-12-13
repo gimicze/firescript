@@ -44,6 +44,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 			5000,
 			function()
 				StopParticleFxLooped(particles, false)
+				RemoveParticleFx(particles, true)
 			end
 		)
 		self.active[fireIndex].particles[flameIndex] = nil
@@ -54,6 +55,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 			5000,
 			function()
 				StopParticleFxLooped(flameParticles, false)
+				RemoveParticleFx(flameParticles, true)
 			end
 		)
 		self.active[fireIndex].flameParticles[flameIndex] = nil
