@@ -1,8 +1,36 @@
 --================================--
---       FIRE SCRIPT v1.6.1       --
+--       FIRE SCRIPT v1.6.3       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
+
+function checkVersion()
+	PerformHttpRequest(
+		LatestVersionFeed,
+		function(errorCode, data, headers)
+			if tonumber(errorCode) == 200 then
+				data = json.decode(data)
+				if not data then
+					print("[FireScript] Couldn't check version - no data returned!")
+					return
+				end
+				if data.tag_name == "v" .. Version then
+					print("[FireScript] Up to date.")
+				else
+					print(("[FireScript] The script isn't up to date! Please update to version %s."):format(data.tag_name))
+				end
+			else
+				print(("[FireScript] Couldn't check version! Error code %s."):format(errorCode))
+				print(LatestVersionFeed)
+			end
+		end,
+		'GET',
+		'',
+		{
+			['User-Agent'] = ("FireScript v%s"):format(Version)
+		}
+	)
+end
 
 -- Chat
 
@@ -13,7 +41,7 @@ function sendMessage(source, text, customName)
 		{
 			templateId = "firescript",
 			args = {
-				((customName ~= nil) and customName or "FireScript v1.6"),
+				((customName ~= nil) and customName or ("FireScript v%s"):format(Version)),
 				text
 			}
 		}

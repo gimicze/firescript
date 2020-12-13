@@ -9,11 +9,11 @@ Fire = {
 	active = {},
 	binds = {},
 	__index = self,
-	init = function(object)
-		object = object or {registered = {}, active = {}, binds = {}}
-		setmetatable(object, self)
+	init = function(o)
+		o = o or {registered = {}, active = {}, binds = {}}
+		setmetatable(o, self)
 		self.__index = self
-		return object
+		return o
 	end
 }
 
