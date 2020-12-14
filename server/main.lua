@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.3       --
+--       FIRE SCRIPT v1.6.4       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -8,7 +8,7 @@
 --         VERSION CHECK          --
 --================================--
 
-Version = "1.6.3"
+Version = "1.6.4"
 LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
 
 Citizen.CreateThread(
