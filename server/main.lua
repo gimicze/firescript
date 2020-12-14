@@ -50,7 +50,7 @@ AddEventHandler(
 --================================--
 
 function onPlayerDropped()
-	Whitlist:removePlayer(source)
+	Whitelist:removePlayer(source)
 	Dispatch:removePlayer(source)
 end
 
