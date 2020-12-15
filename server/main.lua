@@ -26,23 +26,10 @@ function onResourceStart(resourceName)
 	end
 end
 
-function onResourceStop(resourceName)
-	if (GetCurrentResourceName() == resourceName) then
-		Whitelist:save()
-		Fire:saveRegistered()
-	end
-end
-
 RegisterNetEvent('onResourceStart')
 AddEventHandler(
 	'onResourceStart',
 	onResourceStart
-)
-
-RegisterNetEvent('onResourceStop')
-AddEventHandler(
-	'onResourceStop',
-	onResourceStop
 )
 
 --================================--

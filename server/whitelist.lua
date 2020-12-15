@@ -33,15 +33,21 @@ end
 function Whitelist:addPlayer(serverId, steamId)
 	if steamId then
 		self.config[steamId] = true
+		Whitelist:save()
 	end
-	self.players[serverId] = true
+	if serverId then
+		self.players[serverId] = true
+	end
 end
 
 function Whitelist:removePlayer(serverId, steamId)
 	if steamId then
 		self.config[steamId] = nil
+		Whitelist:save()
 	end
-	self.players[serverId] = nil
+	if serverId then
+		self.players[serverId] = nil
+	end
 end
 
 function Whitelist:load()

@@ -115,6 +115,8 @@ function Fire:register(coords)
 		self.registered[registeredFireID].dispatchCoords = coords
 	end
 
+	self:saveRegistered()
+
 	return registeredFireID
 end
 
@@ -167,6 +169,9 @@ function Fire:deleteRegistered(registeredFireID)
 	end
 
 	self.registered[registeredFireID] = nil
+
+	self:saveRegistered()
+
 	return true
 end
 
@@ -182,6 +187,8 @@ function Fire:addFlame(registeredFireID, coords, spread, chance)
 	self.registered[registeredFireID].flames[flameID].spread = spread
 	self.registered[registeredFireID].flames[flameID].chance = chance
 
+	self:saveRegistered()
+
 	return flameID
 end
 
@@ -191,6 +198,9 @@ function Fire:deleteFlame(registeredFireID, flameID)
 	end
 
 	table.remove(self.registered[registeredFireID].flames, flameID)
+
+	self:saveRegistered()
+
 	return true
 end
 
