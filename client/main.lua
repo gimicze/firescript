@@ -64,7 +64,7 @@ TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a regis
 	}
 })
 
-TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a register fire', {
+TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a registered fire', {
 	{
 		name = "fireID",
 		help = "The fire ID"
