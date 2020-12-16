@@ -8,7 +8,7 @@
 --         VERSION CHECK          --
 --================================--
 
-Version = "1.6.5"
+Version = "1.6.6"
 LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
 
 Citizen.CreateThread(
