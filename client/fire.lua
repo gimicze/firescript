@@ -151,12 +151,12 @@ Citizen.CreateThread(
 		while true do
 			local pedCoords = GetEntityCoords(GetPlayerPed(-1))
 			while syncInProgress do
-				Citizen.Wait(50)
+				Citizen.Wait(10)
 			end
 			for fireIndex, v in pairs(Fire.active) do
-				for flameIndex, coords in pairs(v.flameCoords) do
+				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
-					if not v.particles[flameIndex] and #(coords - pedCoords) < 300.0 then
+					if not (syncInProgress and (not Fire.active[fireIndex] or not Fire.active[fireIndex].flameCoords[flameIndex])) and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
 						local z = coords.z
 		
 						repeat
@@ -168,18 +168,18 @@ Citizen.CreateThread(
 						until ground
 						z = newZ
 	
-						v.flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
+						Fire.active[fireIndex].flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
 
-						if v.flames[flameIndex] and v.flames[flameIndex] > -1 then -- Make sure the fire has been spawned properly
-							v.flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
+						if Fire.active[fireIndex].flames[flameIndex] and v.flames[flameIndex] > -1 then -- Make sure the fire has been spawned properly
+							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
 							
-							v.particles[flameIndex] = StartParticleFxLoopedAtCoord(
+							Fire.active[fireIndex].particles[flameIndex] = StartParticleFxLoopedAtCoord(
 								"scr_env_agency3b_smoke",
-								v.flameCoords[flameIndex].x,
-								v.flameCoords[flameIndex].y,
-								v.flameCoords[flameIndex].z + 1.0,
+								Fire.active[fireIndex].flameCoords[flameIndex].x,
+								Fire.active[fireIndex].flameCoords[flameIndex].y,
+								Fire.active[fireIndex].flameCoords[flameIndex].z + 1.0,
 								0.0,
 								0.0,
 								0.0,
@@ -192,11 +192,11 @@ Citizen.CreateThread(
 						
 							SetPtfxAssetNextCall("scr_trevor3")
 						
-							v.flameParticles[flameIndex] = StartParticleFxLoopedAtCoord(
+							Fire.active[fireIndex].flameParticles[flameIndex] = StartParticleFxLoopedAtCoord(
 								"scr_trev3_trailer_plume",
-								v.flameCoords[flameIndex].x,
-								v.flameCoords[flameIndex].y,
-								v.flameCoords[flameIndex].z + 1.2,
+								Fire.active[fireIndex].flameCoords[flameIndex].x,
+								Fire.active[fireIndex].flameCoords[flameIndex].y,
+								Fire.active[fireIndex].flameCoords[flameIndex].z + 1.2,
 								0.0,
 								0.0,
 								0.0,
@@ -208,7 +208,7 @@ Citizen.CreateThread(
 							)
 	
 						else
-							v.flames[flameIndex] = nil
+							Fire.active[fireIndex].flames[flameIndex] = nil
 						end
 					end
 				end
