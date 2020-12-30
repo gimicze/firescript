@@ -275,7 +275,7 @@ RegisterCommand(
 		local action = args[1]
 		local serverId = tonumber(args[2])
 
-		if not (action and serverId) then
+		if not (action and serverId) or serverId < 1 then
 			return
 		end
 
@@ -324,7 +324,7 @@ RegisterCommand(
 		local action = args[1]
 		local serverId = tonumber(args[2])
 
-		if not (action and serverId) then
+		if not (action and serverId) or serverId < 1 then
 			return
 		end
 
