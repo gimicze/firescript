@@ -11,8 +11,6 @@ Config.Fire = {
     maximumSpreads = 5
 }
 
-Config.DispatchTimeout = 15000
-
 Config.Dispatch = {
     enabled = true, -- Set this to false if you don't want to use the default dispatch system
     timeout = 15000, -- The amount of time in ms to delay the dispatch after the fire has been created
