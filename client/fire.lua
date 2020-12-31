@@ -156,7 +156,7 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
-					if not (syncInProgress and (not Fire.active[fireIndex] or not Fire.active[fireIndex].flameCoords[flameIndex])) and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
+					if not (syncInProgress or (not Fire.active[fireIndex] or not Fire.active[fireIndex].flameCoords[flameIndex])) and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
 						local z = coords.z
 		
 						repeat
@@ -170,7 +170,7 @@ Citizen.CreateThread(
 	
 						Fire.active[fireIndex].flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
 
-						if Fire.active[fireIndex].flames[flameIndex] and v.flames[flameIndex] > -1 then -- Make sure the fire has been spawned properly
+						if Fire.active[fireIndex].flames[flameIndex] and Fire.active[fireIndex].flames[flameIndex] > -1 then -- Make sure the fire has been spawned properly
 							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
