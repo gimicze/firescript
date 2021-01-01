@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.6       --
+--       FIRE SCRIPT v1.6.8       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -134,7 +134,7 @@ Citizen.CreateThread(
 							v.flameCoords[flameIndex].x,
 							v.flameCoords[flameIndex].y,
 							v.flameCoords[flameIndex].z,
-							0.5
+							0.05
 						)
 						if isFirePresent == 0 then
 							TriggerServerEvent('fireManager:removeFlame', fireIndex, flameIndex)
