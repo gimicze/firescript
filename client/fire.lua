@@ -156,7 +156,7 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
-					if not (syncInProgress or (not Fire.active[fireIndex] or not Fire.active[fireIndex].flameCoords[flameIndex])) and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
+					if not syncInProgress and Fire.active[fireIndex] and Fire.active[fireIndex].flameCoords[flameIndex] and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
 						local z = coords.z
 		
 						repeat
