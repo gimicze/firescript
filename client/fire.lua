@@ -170,7 +170,7 @@ Citizen.CreateThread(
 	
 						Fire.active[fireIndex].flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
 
-						if Fire.active[fireIndex].flames[flameIndex] and Fire.active[fireIndex].flames[flameIndex] > -1 then -- Make sure the fire has been spawned properly
+						if Fire.active[fireIndex].flames[flameIndex] then -- Make sure the fire has been spawned properly
 							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
