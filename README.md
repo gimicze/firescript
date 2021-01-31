@@ -1,6 +1,6 @@
 ![Logo](https://i.imgur.com/5EoYbiv.png)
 
-[![License GNU-GPL v3](https://img.shields.io/github/license/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/LICENSE "License")
+[![License GNU-GPL v3](https://img.shields.io/github/license/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/blob/master/LICENSE "License")
 [![Latest release](https://img.shields.io/github/v/release/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/releases/latest "Latest release")
 [![Total downloads](https://img.shields.io/github/downloads/gimicze/firescript/total?style=for-the-badge)](https://github.com/gimicze/firescript/releases/latest "Total downloads")
 
