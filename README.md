@@ -1,5 +1,9 @@
 ![Logo](https://i.imgur.com/5EoYbiv.png)
 
+[![License GNU-GPL v3](https://img.shields.io/github/license/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/LICENSE)
+[![Total downloads](https://img.shields.io/github/v/release/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/release/latest)
+[![Total downloads](https://img.shields.io/github/downloads/gimicze/firescript/total?style=for-the-badge)](https://github.com/gimicze/firescript/release/latest)
+
 A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic fires. As far as I am aware, the only fire script compatible with OneSync Infinity / Beyond.
 
 <details>
