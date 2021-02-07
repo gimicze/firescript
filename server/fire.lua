@@ -91,7 +91,7 @@ end
 function Fire:removeFlame(fireIndex, flameIndex)
 	if self.active[fireIndex] and self.active[fireIndex][flameIndex] then
 		self.active[fireIndex][flameIndex] = nil
-		if next(self.active[fireIndex]) == nil and self.activeBinds[fireIndex] then
+		if type(next(self.active[fireIndex])) == "string" and self.activeBinds[fireIndex] then
 			self.binds[self.activeBinds[fireIndex]][fireIndex] = nil
 
 			if self.activeBinds[fireIndex] == self.currentRandom and next(self.binds[self.activeBinds[fireIndex]]) == nil then
@@ -155,6 +155,9 @@ function Fire:startRegistered(registeredFireID, triggerDispatch, dispatchPlayer)
 		Citizen.SetTimeout(
 			Config.Dispatch.timeout,
 			function()
+				if Config.Dispatch.enabled then
+					Dispatch.expectingInfo[dispatchPlayer] = true
+				end
 				TriggerClientEvent('fd:dispatch', dispatchPlayer, dispatchCoords)
 			end
 		)
@@ -225,7 +228,7 @@ function Fire:deleteFlame(registeredFireID, flameID)
 end
 
 function Fire:setRandom(registeredFireID, random)
-	random = random == false and nil or true
+	random = random or nil
 	registeredFireID = tonumber(registeredFireID)
 
 	if not registeredFireID or not self.registered[registeredFireID] then
@@ -257,8 +260,6 @@ function Fire:startSpawner(frequency, chance)
 	Citizen.CreateThread(
 		function()
 			while spawnerActive do
-				Citizen.Wait(frequency)
-
 				if next(self.random) and not self.currentRandom and Dispatch:players() >= Config.Fire.spawner.players then
 					if math.random(100) < chance then
 						local randomRegisteredFireID = table.random(self.random)
@@ -271,6 +272,8 @@ function Fire:startSpawner(frequency, chance)
 						end
 					end
 				end
+				
+				Citizen.Wait(frequency)
 			end
 		end
 	)
@@ -279,8 +282,10 @@ function Fire:startSpawner(frequency, chance)
 end
 
 function Fire:stopSpawner()
-	self._stopSpawner()
-	self._stopSpawner = nil
+	if self._stopSpawner then
+		self._stopSpawner()
+		self._stopSpawner = nil
+	end
 end
 
 -- Saving registered fires
@@ -314,7 +319,7 @@ function Fire:updateRandom() -- Creates a table containing all fires with random
 	end
 	for k, v in pairs(self.registered) do
 		if v.random == true then
-			self.random[k] == true
+			self.random[k] = true
 		end
 	end
 end

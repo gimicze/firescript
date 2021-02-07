@@ -19,12 +19,13 @@ Citizen.CreateThread(
 --          INITIALIZE            --
 --================================--
 
-local expectingDispatchInfo = {}
-
 function onResourceStart(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
 		Whitelist:load()
 		Fire:loadRegistered()
+		if Config.Fire.spawner.enableOnStartup then
+			Fire:startSpawner()
+		end
 	end
 end
 
@@ -74,8 +75,8 @@ AddEventHandler(
 			Citizen.SetTimeout(
 				Config.Dispatch.timeout,
 				function()
-					if Config.Dispatch.enabled == true then
-						expectingDispatchInfo[_source] = true
+					if Config.Dispatch.enabled then
+						Dispatch.expectingInfo[_source] = true
 					end
 					TriggerClientEvent('fd:dispatch', _source, coords)
 				end
@@ -352,7 +353,7 @@ RegisterCommand(
 			Dispatch:addPlayer(serverId)
 			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
 		elseif action == "remove" then
-			Whitelist:removePlayer(serverId, identifier)
+			Dispatch:removePlayer(serverId, identifier)
 			sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
 		else
 			sendMessage(source, "Invalid action.")
@@ -369,37 +370,23 @@ RegisterCommand(
 		end
 
 		local _source = source
-		local registeredFireID = tonumber(args[1])
-
-		if not registeredFireID then
-			return
-		end
-
-		if not Fire:setRandom(registeredFireID, (tostring(random) ~= false)) then
-			sendMessage(source, ("No such fire registered. (#%s)"):format(registeredFireID))
-			return
-		end
-
-		sendMessage(source, ("Fire #%s set to spawn randomly"):format(registeredFireID))
-	end,
-	false
-)
-
-RegisterCommand(
-	'randomfires',
-	function(source, args, rawCommand)
-		local _source = source
 		local action = args[1]
 		local registeredFireID = tonumber(args[2])
 
-		if not (action and registeredFireID) then
+		if not action then
 			return
 		end
 
 		if action == "add" then
+			if not registeredFireID then
+				return
+			end
 			Fire:setRandom(registeredFireID, true)
 			sendMessage(source, ("Set registered fire #%s to spawn randomly."):format(registeredFireID))
 		elseif action == "remove" then
+			if not registeredFireID then
+				return
+			end
 			Fire:setRandom(registeredFireID, false)
 			sendMessage(source, ("Set registered fire #%s not to spawn randomly."):format(registeredFireID))
 		elseif action == "disable" then
@@ -412,7 +399,7 @@ RegisterCommand(
 			sendMessage(source, "Invalid action.")
 		end
 	end,
-	true
+	false
 )
 
 --================================--
@@ -501,9 +488,9 @@ RegisterNetEvent('fireDispatch:create')
 AddEventHandler(
 	'fireDispatch:create',
 	function(text, coords)
-		if expectingDispatchInfo[source] then
+		if Dispatch.expectingInfo[source] then
 			Dispatch:create(text, coords)
-			expectingDispatchInfo[source] = nil
+			Dispatch.expectingInfo[source] = nil
 		end
 	end
 )

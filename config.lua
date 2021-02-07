@@ -10,9 +10,10 @@ Config.Fire = {
     fireSpreadChance = 5, -- Out of 100 chances, how many lead to fire spreading? (not exactly percents)
     maximumSpreads = 5,
     spawner = { -- Requires the use of the built-in dispatch system
+        enableOnStartup = true,
         frequency = 1800000, -- Random fire spawn interval (set to nil or false if you don't want to spawn random fires) in ms
-        chance = 20, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
-        players = 1 -- Sets the minimum number of players who have to be online for the spawner to spawn fires.
+        chance = 50, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
+        players = 3 -- Sets the minimum number of players who have to be online for the spawner to spawn fires.
     }
 }
 

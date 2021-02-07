@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.10      --
+--       FIRE SCRIPT v1.6.3       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -68,28 +68,28 @@ function highestIndex(table, fireIndex)
 	return index, count
 end
 
-function table.length(table)
-	if not table or type(table) ~= "table" then
+function table.length(t)
+	if not t or type(t) ~= "table" then
 		return
 	end
 
 	local count = 0
 
-	for k, v in pairs(table) do count = count + 1 end
+	for k, v in pairs(t) do count = count + 1 end
 
 	return count
 end
 
-function table.random(table)
-	if not table or type(table) ~= "table" or next(table) == nil then
+function table.random(t)
+	if not t or type(t) ~= "table" or next(t) == nil then
 		return false
 	end
 
-	local randomPosition = math.random(1, table.length(table))
+	local randomPosition = math.random(1, table.length(t))
 	local currentPosition = 0
 	local randomKey = nil
 
-	for k, v in pairs(table) do -- Select a random registered fire
+	for k, v in pairs(t) do -- Select a random registered fire
 		currentPosition = currentPosition + 1
 
 		if currentPosition == randomPosition then
@@ -98,7 +98,7 @@ function table.random(table)
 		end
 	end
 
-	return randomKey, table[randomKey]
+	return randomKey, t[randomKey]
 end
 
 -- JSON config
