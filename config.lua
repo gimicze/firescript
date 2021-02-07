@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.7       --
+--       FIRE SCRIPT v1.6.10      --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -8,7 +8,12 @@ Config = {}
 
 Config.Fire = {
     fireSpreadChance = 5, -- Out of 100 chances, how many lead to fire spreading? (not exactly percents)
-    maximumSpreads = 5
+    maximumSpreads = 5,
+    spawner = { -- Requires the use of the built-in dispatch system
+        frequency = 1800000, -- Random fire spawn interval (set to nil or false if you don't want to spawn random fires) in ms
+        chance = 20, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
+        players = 1 -- Sets the minimum number of players who have to be online for the spawner to spawn fires.
+    }
 }
 
 Config.Dispatch = {

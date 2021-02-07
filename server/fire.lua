@@ -1,16 +1,18 @@
 --================================--
---       FIRE SCRIPT v1.6.5       --
+--       FIRE SCRIPT v1.6.10      --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
 
 Fire = {
 	registered = {},
+	random = {},
 	active = {},
 	binds = {},
+	activeBinds = {},
 	__index = self,
 	init = function(o)
-		o = o or {registered = {}, active = {}, binds = {}}
+		o = o or {registered = {}, random = {}, active = {}, binds = {}, activeBinds = {}}
 		setmetatable(o, self)
 		self.__index = self
 		return o
@@ -89,6 +91,17 @@ end
 function Fire:removeFlame(fireIndex, flameIndex)
 	if self.active[fireIndex] and self.active[fireIndex][flameIndex] then
 		self.active[fireIndex][flameIndex] = nil
+		if next(self.active[fireIndex]) == nil and self.activeBinds[fireIndex] then
+			self.binds[self.activeBinds[fireIndex]][fireIndex] = nil
+
+			if self.activeBinds[fireIndex] == self.currentRandom and next(self.binds[self.activeBinds[fireIndex]]) == nil then
+				self.currentRandom = nil
+			end
+
+			print(("Fire %s extinguished"):format(fireIndex), next(self.binds[self.activeBinds[fireIndex]]) == nil)
+
+			self.activeBinds[fireIndex] = nil
+		end
 	end
 	TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
 end
@@ -102,6 +115,7 @@ function Fire:removeAll()
 	end
 	self.active = {}
 	self.binds = {}
+	self.currentRandom = nil
 end
 
 function Fire:register(coords)
@@ -131,7 +145,8 @@ function Fire:startRegistered(registeredFireID, triggerDispatch, dispatchPlayer)
 
 	for k, v in pairs(self.registered[registeredFireID].flames) do
 		local fireID = Fire:create(v.coords, v.spread, v.chance)
-		table.insert(self.binds[registeredFireID], fireID)
+		self.binds[registeredFireID][fireID] = true
+		self.activeBinds[fireID] = registeredFireID
 		Citizen.Wait(10)
 	end
 
@@ -154,11 +169,16 @@ function Fire:stopRegistered(registeredFireID)
 	end
 
 	for k, v in pairs(self.binds[registeredFireID]) do
-		Fire:remove(v)
+		self.activeBinds[k] = nil
+		Fire:remove(k)
 		Citizen.Wait(10)
 	end
 
 	self.binds[registeredFireID] = nil
+
+	if self.currentRandom and self.currentRandom == registeredFireID then
+		self.currentRandom = nil
+	end
 
 	return true
 end
@@ -204,6 +224,65 @@ function Fire:deleteFlame(registeredFireID, flameID)
 	return true
 end
 
+function Fire:setRandom(registeredFireID, random)
+	random = random == false and nil or true
+	registeredFireID = tonumber(registeredFireID)
+
+	if not registeredFireID or not self.registered[registeredFireID] then
+		return false
+	end
+
+	self.registered[registeredFireID].random = random
+	self.random[registeredFireID] = random
+
+	self:saveRegistered()
+
+	return true
+end
+
+function Fire:startSpawner(frequency, chance)
+	frequency = tonumber(frequency) or Config.Fire.spawner.frequency
+	chance = tonumber(chance) or Config.Fire.spawner.chance
+
+	if self._stopSpawner or not self.random then
+		return false
+	end
+
+	local spawnerActive = true
+
+	self._stopSpawner = function()
+		spawnerActive = nil
+	end
+
+	Citizen.CreateThread(
+		function()
+			while spawnerActive do
+				Citizen.Wait(frequency)
+
+				if next(self.random) and not self.currentRandom and Dispatch:players() >= Config.Fire.spawner.players then
+					if math.random(100) < chance then
+						local randomRegisteredFireID = table.random(self.random)
+						local randomPlayer = Dispatch:getRandomPlayer()
+
+						if randomRegisteredFireID and randomPlayer then
+							if self:startRegistered(randomRegisteredFireID, true, randomPlayer) then
+								self.currentRandom = randomRegisteredFireID
+							end
+						end
+					end
+				end
+			end
+		end
+	)
+
+	return true
+end
+
+function Fire:stopSpawner()
+	self._stopSpawner()
+	self._stopSpawner = nil
+end
+
 -- Saving registered fires
 
 function Fire:saveRegistered()
@@ -222,7 +301,20 @@ function Fire:loadRegistered()
 			end
 		end
 		self.registered = firesFile
+		self:updateRandom()
 	else
 		saveData({}, "fires")
+	end
+end
+
+function Fire:updateRandom() -- Creates a table containing all fires with random flag enabled
+	self.random = {}
+	if not (self.registered and next(self.registered) ~= nil) then
+		return
+	end
+	for k, v in pairs(self.registered) do
+		if v.random == true then
+			self.random[k] == true
+		end
 	end
 end

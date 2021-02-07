@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.3       --
+--       FIRE SCRIPT v1.6.10      --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -16,6 +16,8 @@ Dispatch = {
 }
 
 function Dispatch:create(text, coords)
+	text = tostring(text)
+
 	if not (text and coords) then
 		return
 	end
@@ -34,4 +36,15 @@ end
 
 function Dispatch:removePlayer(serverId)
 	self.players[serverId] = nil
+end
+
+function Dispatch:players()
+	return table.length(self.players)
+end
+
+function Dispatch:getRandomPlayer()
+	if not next(self.players) then
+		return false
+	end
+	return table.random(self.players)
 end

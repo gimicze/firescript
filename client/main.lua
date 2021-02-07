@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.3       --
+--       FIRE SCRIPT v1.6.10      --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -124,6 +124,17 @@ TriggerEvent('chat:addSuggestion', '/cleardispatch', 'Clears navigation to the l
 	{
 		name = "dispatchID",
 		help = "(optional) The dispatch identifier, if filled in, the call's blip will be removed."
+	}
+})
+
+TriggerEvent('chat:addSuggestion', '/randomfires', 'Manages the random fire spawner', {
+	{
+		name = "action",
+		help = "add / remove / enable / disable"
+	},
+	{
+		name = "p2",
+		help = "(optional) For add / remove action, fill in the registered fire ID."
 	}
 })
 
@@ -283,7 +294,7 @@ AddEventHandler(
 
 -- Dispatch
 
-if Config.Dispatch.enabled ~= nil then
+if Config.Dispatch.enabled == true then
 	RegisterNetEvent('fd:dispatch')
 	AddEventHandler(
 		'fd:dispatch',

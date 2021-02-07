@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.5       --
+--       FIRE SCRIPT v1.6.10      --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -8,7 +8,7 @@
 --         VERSION CHECK          --
 --================================--
 
-Version = "1.6.9"
+Version = "1.6.10"
 LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
 
 Citizen.CreateThread(
@@ -18,6 +18,8 @@ Citizen.CreateThread(
 --================================--
 --          INITIALIZE            --
 --================================--
+
+local expectingDispatchInfo = {}
 
 function onResourceStart(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
@@ -58,6 +60,7 @@ AddEventHandler(
 		if not Whitelist:isWhitelisted(source) then
 			return
 		end
+
 		local _source = source
 
 		local maxSpread = (maxSpread ~= nil and tonumber(maxSpread) ~= nil) and tonumber(maxSpread) or Config.Fire.maximumSpreads
@@ -71,6 +74,9 @@ AddEventHandler(
 			Citizen.SetTimeout(
 				Config.Dispatch.timeout,
 				function()
+					if Config.Dispatch.enabled == true then
+						expectingDispatchInfo[_source] = true
+					end
 					TriggerClientEvent('fd:dispatch', _source, coords)
 				end
 			)
@@ -99,6 +105,7 @@ AddEventHandler(
 		if not Whitelist:isWhitelisted(source) then
 			return
 		end
+
 		local registeredFireID = tonumber(registeredFireID)
 		local spread = tonumber(spread)
 		local chance = tonumber(chance)
@@ -124,10 +131,13 @@ RegisterCommand(
 		if not Whitelist:isWhitelisted(source) then
 			return
 		end
+
 		local fireIndex = tonumber(args[1])
+
 		if not fireIndex then
 			return
 		end
+
 		if Fire:remove(fireIndex) then
 			sendMessage(source, "Stopping fire #" .. fireIndex)
 			TriggerClientEvent("pNotify:SendNotification", source, {
@@ -148,7 +158,9 @@ RegisterCommand(
 		if not Whitelist:isWhitelisted(source) then
 			return
 		end
+
 		Fire:removeAll()
+
 		sendMessage(source, "Stopping fires")
 		TriggerClientEvent("pNotify:SendNotification", source, {
 			text = "Fires going out...",
@@ -167,6 +179,7 @@ RegisterCommand(
 		if not Whitelist:isWhitelisted(source) then
 			return
 		end
+
 		local registeredFireID = tonumber(args[1])
 		local flameID = tonumber(args[2])
 
@@ -348,6 +361,60 @@ RegisterCommand(
 	true
 )
 
+RegisterCommand(
+	'randomfires',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source) then
+			return
+		end
+
+		local _source = source
+		local registeredFireID = tonumber(args[1])
+
+		if not registeredFireID then
+			return
+		end
+
+		if not Fire:setRandom(registeredFireID, (tostring(random) ~= false)) then
+			sendMessage(source, ("No such fire registered. (#%s)"):format(registeredFireID))
+			return
+		end
+
+		sendMessage(source, ("Fire #%s set to spawn randomly"):format(registeredFireID))
+	end,
+	false
+)
+
+RegisterCommand(
+	'randomfires',
+	function(source, args, rawCommand)
+		local _source = source
+		local action = args[1]
+		local registeredFireID = tonumber(args[2])
+
+		if not (action and registeredFireID) then
+			return
+		end
+
+		if action == "add" then
+			Fire:setRandom(registeredFireID, true)
+			sendMessage(source, ("Set registered fire #%s to spawn randomly."):format(registeredFireID))
+		elseif action == "remove" then
+			Fire:setRandom(registeredFireID, false)
+			sendMessage(source, ("Set registered fire #%s not to spawn randomly."):format(registeredFireID))
+		elseif action == "disable" then
+			Fire:stopSpawner()
+			sendMessage(source, "Disabled random fire spawn.")
+		elseif action == "enable" then
+			Fire:startSpawner()
+			sendMessage(source, "Enabled random fire spawn.")
+		else
+			sendMessage(source, "Invalid action.")
+		end
+	end,
+	true
+)
+
 --================================--
 --           FIRE SYNC            --
 --================================--
@@ -434,7 +501,10 @@ RegisterNetEvent('fireDispatch:create')
 AddEventHandler(
 	'fireDispatch:create',
 	function(text, coords)
-		Dispatch:create(text, coords)
+		if expectingDispatchInfo[source] then
+			Dispatch:create(text, coords)
+			expectingDispatchInfo[source] = nil
+		end
 	end
 )
 

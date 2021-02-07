@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.5       --
+--       FIRE SCRIPT v1.6.10      --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -26,8 +26,9 @@ function Whitelist:check(serverId)
 	end
 end
 
-function Whitelist:isWhitelisted(serverId)
-	return (serverId > 0 and self.players[serverId] == true)
+function Whitelist:isWhitelisted(serverId, ace)
+	ace = tostring(ace)
+	return (serverId > 0 and (self.players[serverId] == true or (ace and IsPlayerAceAllowed(serverId, ace))))
 end
 
 function Whitelist:addPlayer(serverId, steamId)
