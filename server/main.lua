@@ -510,3 +510,49 @@ AddEventHandler(
 		Whitelist:check(source)
 	end
 )
+
+--================================--
+--         AUTO-SUBSCRIBE         --
+--================================--
+
+if Config.Dispatch.enabled and Config.Dispatch.enableESX then
+    ESX = nil
+
+    TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+
+    local allowedJobs = {}
+
+    if type(Config.Dispatch.enableESX) == "table" then
+        for k, v in pairs(Config.Dispatch.enableESX) do
+            allowedJobs[v] = true
+        end
+    else
+        allowedJobs[Config.Dispatch.enableESX] = true
+    end
+
+    RegisterNetEvent("esx:setJob")
+    AddEventHandler(
+        "esx:setJob",
+        function(source)
+            local xPlayer = ESX.GetPlayerFromId(source)
+    
+            if allowedJobs[xPlayer.job.name] then
+                Dispatch:addPlayer(source)
+            else
+                Dispatch:removePlayer(source)
+            end
+        end
+    )
+    
+    RegisterNetEvent("esx:playerLoaded")
+    AddEventHandler(
+        "esx:playerLoaded",
+        function(source, xPlayer)
+            if allowedJobs[xPlayer.job.name] then
+                Dispatch:addPlayer(source)
+            else
+                Dispatch:removePlayer(source)
+            end
+        end
+    )
+end
