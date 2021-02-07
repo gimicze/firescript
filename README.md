@@ -39,6 +39,7 @@ start firescript
 
 # Credits
 - Albo1125 and foregz - I borrowed some particles from their fire scripts. Thanks!
+- MadMick#0773, Mickey#2590 and MadLadClip for testing and help with the script.
 
 # Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
