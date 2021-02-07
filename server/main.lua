@@ -59,6 +59,7 @@ AddEventHandler(
 	'fireManager:command:startfire',
 	function(coords, maxSpread, chance, triggerDispatch)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
@@ -90,6 +91,7 @@ AddEventHandler(
 	'fireManager:command:registerfire',
 	function(coords)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
@@ -104,6 +106,7 @@ AddEventHandler(
 	'fireManager:command:addflame',
 	function(registeredFireID, coords, spread, chance)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
@@ -130,6 +133,7 @@ RegisterCommand(
 	'stopfire',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
@@ -157,6 +161,7 @@ RegisterCommand(
 	'stopallfires',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
@@ -178,6 +183,7 @@ RegisterCommand(
 	'removeflame',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
@@ -204,6 +210,7 @@ RegisterCommand(
 	'removefire',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 		local registeredFireID = tonumber(args[1])
@@ -227,6 +234,7 @@ RegisterCommand(
 	'startregisteredfire',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 		local _source = source
@@ -253,6 +261,7 @@ RegisterCommand(
 	'stopregisteredfire',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 		local _source = source
@@ -366,6 +375,7 @@ RegisterCommand(
 	'randomfires',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source) then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
