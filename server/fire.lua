@@ -260,7 +260,7 @@ function Fire:startSpawner(frequency, chance)
 	Citizen.CreateThread(
 		function()
 			while spawnerActive do
-				if next(self.random) and not self.currentRandom and Dispatch:players() >= Config.Fire.spawner.players then
+				if next(self.random) and not self.currentRandom and Dispatch:firefighters() >= Config.Fire.spawner.players then
 					if math.random(100) < chance then
 						local randomRegisteredFireID = table.random(self.random)
 						local randomPlayer = Dispatch:getRandomPlayer()

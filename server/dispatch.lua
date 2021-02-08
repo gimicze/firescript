@@ -6,11 +6,12 @@
 
 Dispatch = {
 	_players = {},
+	_firefighters = {},
 	lastNumber = 0,
 	expectingInfo = {},
 	__index = self,
 	init = function(object)
-		object = object or {_players = {}, lastNumber = 0}
+		object = object or {_players = {}, _firefighters = {}, lastNumber = 0, expectingInfo = {}}
 		setmetatable(object, self)
 		return object
 	end
@@ -31,12 +32,32 @@ function Dispatch:create(text, coords)
 	end
 end
 
-function Dispatch:addPlayer(serverId)
+function Dispatch:subscribe(serverId, notFirefighter)
+	serverId = tonumber(serverId)
 	self._players[serverId] = true
+	if not notFirefighter then
+		self:addFirefighter(serverId)
+	end
 end
 
-function Dispatch:removePlayer(serverId)
+function Dispatch:unsubscribe(serverId)
+	serverId = tonumber(serverId)
 	self._players[serverId] = nil
+	self:removeFirefighter(serverId)
+end
+
+function Dispatch:addFirefighter(serverId)
+	serverId = tonumber(serverId)
+	self._firefighters[serverId] = true
+end
+
+function Dispatch:removeFirefighter(serverId)
+	serverId = tonumber(serverId)
+	self._firefighters[serverId] = true
+end
+
+function Dispatch:firefighters()
+	return table.length(self._firefighters)
 end
 
 function Dispatch:players()

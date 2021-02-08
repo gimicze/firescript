@@ -359,10 +359,10 @@ RegisterCommand(
 		end
 
 		if action == "add" then
-			Dispatch:addPlayer(serverId)
+			Dispatch:subscribe(serverId)
 			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
 		elseif action == "remove" then
-			Dispatch:removePlayer(serverId, identifier)
+			Dispatch:unsubscribe(serverId, identifier)
 			sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
 		else
 			sendMessage(source, "Invalid action.")
@@ -475,12 +475,13 @@ AddEventHandler(
 RegisterNetEvent('fireDispatch:registerPlayer')
 AddEventHandler(
 	'fireDispatch:registerPlayer',
-	function(playerSource)
-		if source > 0 then
+	function(playerSource, isFirefighter)
+		playerSource = tonumber(playerSource)
+		if source > 0 and playerSource and playerSource > 0 then
 			return
 		end
 
-		Dispatch:addPlayer(playerSource)
+		Dispatch:subscribe(playerSource, not (isFirefighter))
 	end
 )
 
@@ -488,11 +489,12 @@ RegisterNetEvent('fireDispatch:removePlayer')
 AddEventHandler(
 	'fireDispatch:removePlayer',
 	function(playerSource)
-		if source > 0 then
+		playerSource = tonumber(playerSource)
+		if source > 0 and playerSource and playerSource > 0 then
 			return
 		end
 
-		Dispatch:removePlayer(playerSource)
+		Dispatch:subscribe(playerSource)
 	end
 )
 
@@ -533,6 +535,7 @@ if Config.Dispatch.enabled and Config.Dispatch.enableESX then
     TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
     local allowedJobs = {}
+	local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
 
     if type(Config.Dispatch.enableESX) == "table" then
         for k, v in pairs(Config.Dispatch.enableESX) do
@@ -540,6 +543,7 @@ if Config.Dispatch.enabled and Config.Dispatch.enableESX then
         end
     else
         allowedJobs[Config.Dispatch.enableESX] = true
+		firefighterJobs[Config.Dispatch.enableESX] = true
     end
 
     RegisterNetEvent("esx:setJob")
@@ -549,9 +553,9 @@ if Config.Dispatch.enabled and Config.Dispatch.enableESX then
             local xPlayer = ESX.GetPlayerFromId(source)
     
             if allowedJobs[xPlayer.job.name] then
-                Dispatch:addPlayer(source)
+                Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
             else
-                Dispatch:removePlayer(source)
+                Dispatch:unsubscribe(source)
             end
         end
     )
@@ -561,9 +565,9 @@ if Config.Dispatch.enabled and Config.Dispatch.enableESX then
         "esx:playerLoaded",
         function(source, xPlayer)
             if allowedJobs[xPlayer.job.name] then
-                Dispatch:addPlayer(source)
+                Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
             else
-                Dispatch:removePlayer(source)
+                Dispatch:unsubscribe(source)
             end
         end
     )
