@@ -76,7 +76,7 @@ AddEventHandler(
 			Citizen.SetTimeout(
 				Config.Dispatch.timeout,
 				function()
-					if Config.Dispatch.enabled then
+					if Config.Dispatch.enabled and not Config.Dispatch.disableCalls then
 						Dispatch.expectingInfo[_source] = true
 					end
 					TriggerClientEvent('fd:dispatch', _source, coords)
@@ -500,7 +500,7 @@ RegisterNetEvent('fireDispatch:create')
 AddEventHandler(
 	'fireDispatch:create',
 	function(text, coords)
-		if Dispatch.expectingInfo[source] then
+		if not Config.Dispatch.disableCalls and Dispatch.expectingInfo[source] then
 			Dispatch:create(text, coords)
 			Dispatch.expectingInfo[source] = nil
 		end
