@@ -389,14 +389,14 @@ RegisterCommand(
 
 		if action == "add" then
 			if not registeredFireID then
-				sendMessage(source, "Parameter 2 is missing.")
+				sendMessage(source, "Invalid argument (2).")
 				return
 			end
 			Fire:setRandom(registeredFireID, true)
 			sendMessage(source, ("Set registered fire #%s to spawn randomly."):format(registeredFireID))
 		elseif action == "remove" then
 			if not registeredFireID then
-				sendMessage(source, "Parameter 2 is missing.")
+				sendMessage(source, "Invalid argument (2).")
 				return
 			end
 			Fire:setRandom(registeredFireID, false)
