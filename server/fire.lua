@@ -98,8 +98,6 @@ function Fire:removeFlame(fireIndex, flameIndex)
 				self.currentRandom = nil
 			end
 
-			print(("Fire %s extinguished"):format(fireIndex), next(self.binds[self.activeBinds[fireIndex]]) == nil)
-
 			self.activeBinds[fireIndex] = nil
 		end
 	end
