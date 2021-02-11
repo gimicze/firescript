@@ -24,7 +24,9 @@ function onResourceStart(resourceName)
 		Whitelist:load()
 		Fire:loadRegistered()
 		if Config.Fire.spawner.enableOnStartup then
-			Fire:startSpawner()
+			if not Fire:startSpawner() then
+				print("Couldn't start fire spawner.")
+			end
 		end
 	end
 end
@@ -41,7 +43,7 @@ AddEventHandler(
 
 function onPlayerDropped()
 	Whitelist:removePlayer(source)
-	Dispatch:removePlayer(source)
+	Dispatch:unsubscribe(source)
 end
 
 RegisterNetEvent('playerDropped')

@@ -191,6 +191,10 @@ function Fire:deleteRegistered(registeredFireID)
 		return false
 	end
 
+	if self.registered[registeredFireID].random then
+		self:setRandom(registeredFireID, false)
+	end
+
 	self.registered[registeredFireID] = nil
 
 	self:saveRegistered()

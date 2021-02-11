@@ -53,7 +53,7 @@ end
 
 function Dispatch:removeFirefighter(serverId)
 	serverId = tonumber(serverId)
-	self._firefighters[serverId] = true
+	self._firefighters[serverId] = nil
 end
 
 function Dispatch:firefighters()
