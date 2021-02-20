@@ -1,4 +1,4 @@
-![Logo](https://i.imgur.com/5EoYbiv.png)
+![Logo](https://i.imgur.com/cfPLDVh.png)
 
 [![License GNU-GPL v3](https://img.shields.io/github/license/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/blob/master/LICENSE "License")
 [![Latest release](https://img.shields.io/github/v/release/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/releases/latest "Latest release")
