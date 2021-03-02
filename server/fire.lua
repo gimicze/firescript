@@ -249,7 +249,7 @@ function Fire:startSpawner(frequency, chance)
 	frequency = tonumber(frequency) or Config.Fire.spawner.frequency
 	chance = tonumber(chance) or Config.Fire.spawner.chance
 
-	if self._stopSpawner or not self.random then
+	if self._stopSpawner or not self.random or not frequency then
 		return false
 	end
 

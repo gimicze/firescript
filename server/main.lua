@@ -23,7 +23,7 @@ function onResourceStart(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
 		Whitelist:load()
 		Fire:loadRegistered()
-		if Config.Fire.spawner.enableOnStartup then
+		if Config.Fire.spawner.enableOnStartup and Config.Fire.spawner.frequency then
 			if not Fire:startSpawner() then
 				print("Couldn't start fire spawner.")
 			end
