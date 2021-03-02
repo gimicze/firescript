@@ -50,8 +50,8 @@ function Fire:create(coords, maximumSpread, spreadChance)
 							local y = self.active[fireIndex][k].y
 							local z = self.active[fireIndex][k].z
 	
-							local xSpread = math.random(-2, 2)
-							local ySpread = math.random(-2, 2)
+							local xSpread = math.random(-3, 3)
+							local ySpread = math.random(-3, 3)
 	
 							coords = vector3(x + xSpread, y + ySpread, z)
 	
