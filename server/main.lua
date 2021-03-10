@@ -361,7 +361,7 @@ RegisterCommand(
 		end
 
 		if action == "add" then
-			Dispatch:subscribe(serverId)
+			Dispatch:subscribe(serverId, (not args[3] or args[3] ~= "false"))
 			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
 		elseif action == "remove" then
 			Dispatch:unsubscribe(serverId, identifier)
