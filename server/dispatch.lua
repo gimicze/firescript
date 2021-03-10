@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.7.0       --
+--       FIRE SCRIPT v1.7.2       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -32,10 +32,10 @@ function Dispatch:create(text, coords)
 	end
 end
 
-function Dispatch:subscribe(serverId, notFirefighter)
+function Dispatch:subscribe(serverId, isFirefighter)
 	serverId = tonumber(serverId)
 	self._players[serverId] = true
-	if not notFirefighter then
+	if isFirefighter then
 		self:addFirefighter(serverId)
 	end
 end
