@@ -478,8 +478,9 @@ RegisterNetEvent('fireDispatch:registerPlayer')
 AddEventHandler(
 	'fireDispatch:registerPlayer',
 	function(playerSource, isFirefighter)
+		source = tonumber(source)
 		playerSource = tonumber(playerSource)
-		if source > 0 and playerSource and playerSource > 0 then
+		if (source and source > 0) or not playerSource or playerSource < 0 then
 			return
 		end
 
@@ -491,8 +492,9 @@ RegisterNetEvent('fireDispatch:removePlayer')
 AddEventHandler(
 	'fireDispatch:removePlayer',
 	function(playerSource)
+		source = tonumber(source)
 		playerSource = tonumber(playerSource)
-		if source > 0 and playerSource and playerSource > 0 then
+		if (source and source > 0) or not playerSource or playerSource < 0 then
 			return
 		end
 
@@ -520,7 +522,7 @@ AddEventHandler(
 	'fireManager:checkWhitelist',
 	function(serverId)
 		if serverId then
-			source = serverId
+			source = tonumber(serverId) or source
 		end
 
 		Whitelist:check(source)

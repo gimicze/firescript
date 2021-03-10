@@ -35,17 +35,21 @@ end
 -- Chat
 
 function sendMessage(source, text, customName)
-	TriggerClientEvent(
-		"chat:addMessage",
-		source,
-		{
-			templateId = "firescript",
-			args = {
-				((customName ~= nil) and customName or ("FireScript v%s"):format(Version)),
-				text
+	if source > 0 then
+		TriggerClientEvent(
+			"chat:addMessage",
+			source,
+			{
+				templateId = "firescript",
+				args = {
+					((customName ~= nil) and customName or ("FireScript v%s"):format(Version)),
+					text
+				}
 			}
-		}
-	)
+		)
+	else
+		print(("[FireScript v%s] %s"):format(Version, text))
+	end
 end
 
 -- Table functions
