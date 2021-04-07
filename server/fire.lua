@@ -82,8 +82,18 @@ function Fire:remove(fireIndex)
 	if not (self.active[fireIndex] and next(self.active[fireIndex])) then
 		return false
 	end
+
 	self.active[fireIndex].stopSpread()
 	TriggerClientEvent('fireClient:removeFire', -1, fireIndex)
+
+	if self.activeBinds[fireIndex] then
+		self.binds[self.activeBinds[fireIndex]][fireIndex] = nil
+
+		if self.activeBinds[fireIndex] == self.currentRandom and next(self.binds[self.activeBinds[fireIndex]]) == nil then
+			self.currentRandom = nil
+		end
+	end
+
 	self.active[fireIndex] = {}
 	return true
 end
