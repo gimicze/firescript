@@ -60,7 +60,7 @@ RegisterNetEvent('fireManager:command:startfire')
 AddEventHandler(
 	'fireManager:command:startfire',
 	function(coords, maxSpread, chance, triggerDispatch)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.start") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -92,7 +92,7 @@ RegisterNetEvent('fireManager:command:registerfire')
 AddEventHandler(
 	'fireManager:command:registerfire',
 	function(coords)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -107,7 +107,7 @@ RegisterNetEvent('fireManager:command:addflame')
 AddEventHandler(
 	'fireManager:command:addflame',
 	function(registeredFireID, coords, spread, chance)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -134,7 +134,7 @@ AddEventHandler(
 RegisterCommand(
 	'stopfire',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.stop") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -162,7 +162,7 @@ RegisterCommand(
 RegisterCommand(
 	'stopallfires',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.stop") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -184,7 +184,7 @@ RegisterCommand(
 RegisterCommand(
 	'removeflame',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -211,7 +211,7 @@ RegisterCommand(
 RegisterCommand(
 	'removefire',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -235,7 +235,7 @@ RegisterCommand(
 RegisterCommand(
 	'startregisteredfire',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.start") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -262,7 +262,7 @@ RegisterCommand(
 RegisterCommand(
 	'stopregisteredfire',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.stop") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
@@ -376,7 +376,7 @@ RegisterCommand(
 RegisterCommand(
 	'randomfires',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source) then
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
