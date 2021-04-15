@@ -256,7 +256,7 @@ function Fire:setRandom(registeredFireID, random)
 end
 
 function Fire:startSpawner(frequency, chance)
-	frequency = tonumber(frequency) or Config.Fire.spawner.frequency
+	frequency = tonumber(frequency) or Config.Fire.spawner.interval
 	chance = tonumber(chance) or Config.Fire.spawner.chance
 
 	if self._stopSpawner or not self.random or not frequency then
