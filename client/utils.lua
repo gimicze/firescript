@@ -12,7 +12,7 @@ function sendMessage(text)
 		{
 			templateId = "firescript",
 			args = {
-				"FireScript v1.6.6",
+				"FireScript v1.7.3",
 				text
 			}
 		}

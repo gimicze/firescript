@@ -25,7 +25,7 @@ function onResourceStart(resourceName)
 		Fire:loadRegistered()
 		if Config.Fire.spawner.enableOnStartup and Config.Fire.spawner.interval then
 			if not Fire:startSpawner() then
-				print("Couldn't start fire spawner.")
+				sendMessage(0, "Couldn't start fire spawner.")
 			end
 		end
 	end
