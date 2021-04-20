@@ -161,7 +161,7 @@ Citizen.CreateThread(
 		
 						repeat
 							Wait(0)
-							ground, newZ = GetGroundZFor_3dCoord(coords.x, coords.y, z, 1)
+							ground, newZ = GetGroundZFor_3dCoord(coords.x, coords.y, z)
 							if not ground then
 								z = z + 0.1
 							end
