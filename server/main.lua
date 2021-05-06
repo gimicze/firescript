@@ -72,7 +72,7 @@ AddEventHandler(
 
 		local fireIndex = Fire:create(coords, maxSpread, chance)
 
-		sendMessage(source, "Created fire #" .. fireIndex)
+		sendMessage(source, "Spawned fire #" .. fireIndex)
 
 		if triggerDispatch then
 			Citizen.SetTimeout(
@@ -88,9 +88,9 @@ AddEventHandler(
 	end
 )
 
-RegisterNetEvent('fireManager:command:registerfire')
+RegisterNetEvent('fireManager:command:registerscenario')
 AddEventHandler(
-	'fireManager:command:registerfire',
+	'fireManager:command:registerscenario',
 	function(coords)
 		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
@@ -99,7 +99,7 @@ AddEventHandler(
 
 		local registeredFireID = Fire:register(coords)
 
-		sendMessage(source, "Registered fire #" .. registeredFireID)
+		sendMessage(source, "Created scenario #" .. registeredFireID)
 	end
 )
 
@@ -123,11 +123,11 @@ AddEventHandler(
 		local flameID = Fire:addFlame(registeredFireID, coords, spread, chance)
 
 		if not flameID then
-			sendMessage(source, "No such fire registered.")
+			sendMessage(source, "No such scenario.")
 			return
 		end
 
-		sendMessage(source, "Registered flame #" .. flameID)
+		sendMessage(source, "Added flame #" .. flameID)
 	end
 )
 
@@ -209,7 +209,7 @@ RegisterCommand(
 )
 
 RegisterCommand(
-	'removefire',
+	'removescenario',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
@@ -223,17 +223,17 @@ RegisterCommand(
 		local success = Fire:deleteRegistered(registeredFireID)
 
 		if not success then
-			sendMessage(source, "No such fire or flame registered.")
+			sendMessage(source, "No such scenario.")
 			return
 		end
 
-		sendMessage(source, "Removed fire #" .. registeredFireID)
+		sendMessage(source, "Removed scenario #" .. registeredFireID)
 	end,
 	false
 )
 
 RegisterCommand(
-	'startregisteredfire',
+	'startscenario',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source, "firescript.start") then
 			sendMessage(source, "Insufficient permissions.")
@@ -250,17 +250,17 @@ RegisterCommand(
 		local success = Fire:startRegistered(registeredFireID, triggerDispatch, source)
 
 		if not success then
-			sendMessage(source, "No such fire or flame registered.")
+			sendMessage(source, "No such scenario.")
 			return
 		end
 
-		sendMessage(source, "Started registered fire #" .. registeredFireID)
+		sendMessage(source, "Started scenario #" .. registeredFireID)
 	end,
 	false
 )
 
 RegisterCommand(
-	'stopregisteredfire',
+	'stopscenario',
 	function(source, args, rawCommand)
 		if not Whitelist:isWhitelisted(source, "firescript.stop") then
 			sendMessage(source, "Insufficient permissions.")
@@ -276,11 +276,11 @@ RegisterCommand(
 		local success = Fire:stopRegistered(registeredFireID)
 
 		if not success then
-			sendMessage(source, "No such fire active.")
+			sendMessage(source, "No such scenario active.")
 			return
 		end
 
-		sendMessage(source, "Stopping registered fire #" .. registeredFireID)
+		sendMessage(source, "Stopping scenario #" .. registeredFireID)
 
 		TriggerClientEvent("pNotify:SendNotification", source, {
 			text = "Fire going out...",
@@ -395,14 +395,14 @@ RegisterCommand(
 				return
 			end
 			Fire:setRandom(registeredFireID, true)
-			sendMessage(source, ("Set registered fire #%s to spawn randomly."):format(registeredFireID))
+			sendMessage(source, ("Set scenario #%s to start randomly."):format(registeredFireID))
 		elseif action == "remove" then
 			if not registeredFireID then
 				sendMessage(source, "Invalid argument (2).")
 				return
 			end
 			Fire:setRandom(registeredFireID, false)
-			sendMessage(source, ("Set registered fire #%s not to spawn randomly."):format(registeredFireID))
+			sendMessage(source, ("Set scenario #%s not to start randomly."):format(registeredFireID))
 		elseif action == "disable" then
 			Fire:stopSpawner()
 			sendMessage(source, "Disabled random fire spawn.")
@@ -506,9 +506,11 @@ RegisterNetEvent('fireDispatch:create')
 AddEventHandler(
 	'fireDispatch:create',
 	function(text, coords)
-		if not Config.Dispatch.disableCalls and Dispatch.expectingInfo[source] then
+		if not Config.Dispatch.disableCalls and (source < 1 or Dispatch.expectingInfo[source]) then
 			Dispatch:create(text, coords)
-			Dispatch.expectingInfo[source] = nil
+			if source > 0 then
+				Dispatch.expectingInfo[source] = nil
+			end
 		end
 	end
 )

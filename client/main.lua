@@ -36,12 +36,12 @@ TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
 
 TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
 
-TriggerEvent('chat:addSuggestion', '/registerfire', 'Registers a new fire configuration')
+TriggerEvent('chat:addSuggestion', '/registerscenario', 'Registers a new fire configuration')
 
-TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fire', {
+TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a scenario', {
 	{
-		name = "fireID",
-		help = "The registered fire"
+		name = "scenarioID",
+		help = "The scenario"
 	},
 	{
 		name = "spread",
@@ -53,9 +53,9 @@ TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a registered fi
 	}
 })
 
-TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a registered fire', {
+TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a scenario', {
 	{
-		name = "fireID",
+		name = "scenarioID",
 		help = "The fire ID"
 	},
 	{
@@ -64,16 +64,16 @@ TriggerEvent('chat:addSuggestion', '/removeflame', 'Removes a flame from a regis
 	}
 })
 
-TriggerEvent('chat:addSuggestion', '/removefire', 'Removes a registered fire', {
+TriggerEvent('chat:addSuggestion', '/removescenario', 'Removes a scenario', {
 	{
-		name = "fireID",
+		name = "scenarioID",
 		help = "The fire ID"
 	}
 })
 
-TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered fire', {
+TriggerEvent('chat:addSuggestion', '/startscenario', 'Starts a scenario', {
 	{
-		name = "fireID",
+		name = "scenarioID",
 		help = "The fire ID"
 	},
 	{
@@ -82,9 +82,9 @@ TriggerEvent('chat:addSuggestion', '/startregisteredfire', 'Starts a registered 
 	}
 })
 
-TriggerEvent('chat:addSuggestion', '/stopregisteredfire', 'Stops a registered fire', {
+TriggerEvent('chat:addSuggestion', '/stopscenario', 'Stops a scenario', {
 	{
-		name = "fireID",
+		name = "scenarioID",
 		help = "The fire ID"
 	}
 })
@@ -134,7 +134,7 @@ TriggerEvent('chat:addSuggestion', '/randomfires', 'Manages the random fire spaw
 	},
 	{
 		name = "p2",
-		help = "(optional) For add / remove action, fill in the registered fire ID."
+		help = "(optional) For add / remove action, fill in the scenario ID."
 	}
 })
 
@@ -206,9 +206,9 @@ RegisterCommand(
 )
 
 RegisterCommand(
-	'registerfire',
+	'registerscenario',
 	function(source, args, rawCommand)
-		TriggerServerEvent('fireManager:command:registerfire', GetEntityCoords(GetPlayerPed(-1)))
+		TriggerServerEvent('fireManager:command:registerscenario', GetEntityCoords(GetPlayerPed(-1)))
 	end,
 	false
 )
@@ -223,6 +223,40 @@ RegisterCommand(
 		if registeredFireID and spread and chance then
 			TriggerServerEvent('fireManager:command:addflame', registeredFireID, GetEntityCoords(GetPlayerPed(-1)), spread, chance)
 		end
+	end,
+	false
+)
+
+-- Aliases
+
+RegisterCommand(
+	'registerfire',
+	function(source, args, rawCommand)
+		ExecuteCommand("registerscenario" .. rawCommand:sub(13))
+	end,
+	false
+)
+
+RegisterCommand(
+	'removeregisteredfire',
+	function(source, args, rawCommand)
+		ExecuteCommand("removescenario" .. rawCommand:sub(21))
+	end,
+	false
+)
+
+RegisterCommand(
+	'startregisteredfire',
+	function(source, args, rawCommand)
+		ExecuteCommand("startscenario" .. rawCommand:sub(20))
+	end,
+	false
+)
+
+RegisterCommand(
+	'stopregisteredfire',
+	function(source, args, rawCommand)
+		ExecuteCommand("stopscenario" .. rawCommand:sub(19))
 	end,
 	false
 )
