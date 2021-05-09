@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.10      --
+--       FIRE SCRIPT v1.7.4       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -208,7 +208,17 @@ RegisterCommand(
 RegisterCommand(
 	'registerscenario',
 	function(source, args, rawCommand)
-		TriggerServerEvent('fireManager:command:registerscenario', GetEntityCoords(GetPlayerPed(-1)))
+		local coords = nil
+
+		local x = tonumber(args[1])
+		local y = tonumber(args[2])
+		local z = tonumber(args[3])
+
+		if x and y and z then
+			coords = vector3(x, y, z)
+		end
+
+		TriggerServerEvent('fireManager:command:registerscenario', coords or GetEntityCoords(GetPlayerPed(-1)))
 	end,
 	false
 )
@@ -220,8 +230,18 @@ RegisterCommand(
 		local spread = tonumber(args[2])
 		local chance = tonumber(args[3])
 
+		local coords = nil
+
+		local x = tonumber(args[4])
+		local y = tonumber(args[5])
+		local z = tonumber(args[6])
+
+		if x and y and z then
+			coords = vector3(x, y, z)
+		end
+
 		if registeredFireID and spread and chance then
-			TriggerServerEvent('fireManager:command:addflame', registeredFireID, GetEntityCoords(GetPlayerPed(-1)), spread, chance)
+			TriggerServerEvent('fireManager:command:addflame', registeredFireID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
 		end
 	end,
 	false
