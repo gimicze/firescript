@@ -34,10 +34,12 @@ function Fire:removeFlame(fireIndex, flameIndex)
 	if not (fireIndex and flameIndex and self.active[fireIndex]) then
 		return
 	end
+
 	if self.active[fireIndex].flames[flameIndex] and self.active[fireIndex].flames[flameIndex] > -1 then
 		RemoveScriptFire(self.active[fireIndex].flames[flameIndex])
         self.active[fireIndex].flames[flameIndex] = nil
     end
+
 	if self.active[fireIndex].particles[flameIndex] and self.active[fireIndex].particles[flameIndex] ~= 0 then
 		local particles = self.active[fireIndex].particles[flameIndex]
 		Citizen.SetTimeout(
@@ -49,6 +51,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 		)
 		self.active[fireIndex].particles[flameIndex] = nil
 	end
+
 	if self.active[fireIndex].flameParticles[flameIndex] and self.active[fireIndex].flameParticles[flameIndex] ~= 0 then
 		local flameParticles = self.active[fireIndex].flameParticles[flameIndex]
 		Citizen.SetTimeout(
@@ -60,6 +63,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 		)
 		self.active[fireIndex].flameParticles[flameIndex] = nil
 	end
+	
 	self.active[fireIndex].flameCoords[flameIndex] = nil
 
 	if self.active[fireIndex] ~= nil and countElements(self.active[fireIndex].flames) < 1 then
@@ -73,7 +77,7 @@ function Fire:remove(fireIndex, callback)
 		return
 	end
 
-	for k, v in pairs(self.active[fireIndex].flames) do
+	for k, v in pairs(self.active[fireIndex].flameCoords) do
         self:removeFlame(fireIndex, k)
         Citizen.Wait(20)
 	end
