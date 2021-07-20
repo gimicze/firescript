@@ -134,14 +134,16 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(Fire.active) do
 				if countElements(v.particles) ~= 0 then
 					for flameIndex, _v in pairs(v.particles) do
-						local isFirePresent = GetNumberOfFiresInRange(
-							v.flameCoords[flameIndex].x,
-							v.flameCoords[flameIndex].y,
-							v.flameCoords[flameIndex].z,
-							0.05
-						)
-						if isFirePresent == 0 then
-							TriggerServerEvent('fireManager:removeFlame', fireIndex, flameIndex)
+						if v.flameCoords[flameIndex] ~= nil then
+							local isFirePresent = GetNumberOfFiresInRange(
+								v.flameCoords[flameIndex].x,
+								v.flameCoords[flameIndex].y,
+								v.flameCoords[flameIndex].z,
+								0.05
+							)
+							if isFirePresent == 0 then
+								TriggerServerEvent('fireManager:removeFlame', fireIndex, flameIndex)
+							end
 						end
 					end
 				end

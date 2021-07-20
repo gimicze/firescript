@@ -41,7 +41,7 @@ function Fire:create(coords, maximumSpread, spreadChance)
 			while spread do
 				Citizen.Wait(2000)
 				local index, flames = highestIndex(self.active, fireIndex)
-				if flames ~= 0 and flames <= maximumSpread then
+				if flames ~= 0 and flames <= maximumSpread and self.active[fireIndex] ~= nil then
 					for k, v in ipairs(self.active[fireIndex]) do
 						index, flames = highestIndex(self.active, fireIndex)
 						local rndSpread = math.random(100)
