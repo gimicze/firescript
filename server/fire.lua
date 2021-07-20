@@ -45,7 +45,7 @@ function Fire:create(coords, maximumSpread, spreadChance)
 					for k, v in ipairs(self.active[fireIndex]) do
 						index, flames = highestIndex(self.active, fireIndex)
 						local rndSpread = math.random(100)
-						if count ~= 0 and flames <= maximumSpread and rndSpread <= spreadChance then
+						if flames <= maximumSpread and rndSpread <= spreadChance then
 							local x = self.active[fireIndex][k].x
 							local y = self.active[fireIndex][k].y
 							local z = self.active[fireIndex][k].z
@@ -56,9 +56,12 @@ function Fire:create(coords, maximumSpread, spreadChance)
 							coords = vector3(x + xSpread, y + ySpread, z)
 	
 							self:createFlame(fireIndex, coords)
+						elseif flames > maximumSpread then
+							spread = false
+							break
 						end
 					end
-				elseif flames == 0 then
+				elseif flames == 0 or self.active[fireIndex] == nil then
 					break
 				end
 			end
