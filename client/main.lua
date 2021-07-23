@@ -22,6 +22,10 @@ TriggerEvent('chat:addSuggestion', '/startfire', 'Creates a fire', {
 	{
 		name = "dispatch",
 		help = "true or false (default false)"
+	},
+	{
+		name = "dispatchMessage",
+		help = "Sets a custom dispatch message (leave empty to generate automatically)"
 	}
 })
 
@@ -103,11 +107,15 @@ TriggerEvent('chat:addSuggestion', '/firewlreload', 'Reloads the whitelist from 
 TriggerEvent('chat:addSuggestion', '/firedispatch', 'Manages the fire script dispatch subscribers', {
 	{
 		name = "action",
-		help = "add / remove"
+		help = "add / remove / scenario (scenario = sets the scenario's dispatch message)"
 	},
 	{
-		name = "playerID",
-		help = "The player's server ID"
+		name = "playerID / scenarioID",
+		help = "The player's server ID / the scenario's ID"
+	},
+	{
+		name = "dispatchMessage",
+		help = "Sets a custom dispatch message for the scenario (use only with par. #1 scenario)"
 	}
 })
 
