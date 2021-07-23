@@ -59,7 +59,7 @@ AddEventHandler(
 RegisterNetEvent('fireManager:command:startfire')
 AddEventHandler(
 	'fireManager:command:startfire',
-	function(coords, maxSpread, chance, triggerDispatch)
+	function(coords, maxSpread, chance, triggerDispatch, dispatchMessage)
 		if not Whitelist:isWhitelisted(source, "firescript.start") then
 			sendMessage(source, "Insufficient permissions.")
 			return
@@ -79,8 +79,12 @@ AddEventHandler(
 				Config.Dispatch.timeout,
 				function()
 					if Config.Dispatch.enabled and not Config.Dispatch.disableCalls then
-						Dispatch.expectingInfo[_source] = true
-						TriggerClientEvent('fd:dispatch', _source, coords)
+						if dispatchMessage then
+							Dispatch:create(dispatchMessage, coords)
+						else
+							Dispatch.expectingInfo[_source] = true
+							TriggerClientEvent('fd:dispatch', _source, coords)
+						end
 					end
 				end
 			)

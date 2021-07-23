@@ -198,7 +198,13 @@ RegisterCommand(
 		local probability = tonumber(args[2])
 		local triggerDispatch = args[3] == "true"
 
-		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch)
+		table.remove(args, 1)
+		table.remove(args, 1)
+		table.remove(args, 1)
+
+		local dispatchMessage = next(args) and table.concat(args, " ") or nil
+
+		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch, dispatchMessage)
 	end,
 	false
 )

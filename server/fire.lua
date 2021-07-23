@@ -162,7 +162,6 @@ function Fire:startRegistered(registeredFireID, triggerDispatch, dispatchPlayer)
 			Config.Dispatch.timeout,
 			function()
 				if Config.Dispatch.enabled then
-					print(self.registered[registeredFireID].message, self.registered[registeredFireID].message ~= nil)
 					if self.registered[registeredFireID].message ~= nil then
 						Dispatch:create(self.registered[registeredFireID].message, dispatchCoords)
 					else
