@@ -104,14 +104,8 @@ end
 function Fire:removeFlame(fireIndex, flameIndex)
 	if self.active[fireIndex] and self.active[fireIndex][flameIndex] then
 		self.active[fireIndex][flameIndex] = nil
-		if type(next(self.active[fireIndex])) == "string" and self.activeBinds[fireIndex] then
-			self.binds[self.activeBinds[fireIndex]][fireIndex] = nil
-
-			if self.activeBinds[fireIndex] == self.currentRandom and next(self.binds[self.activeBinds[fireIndex]]) == nil then
-				self.currentRandom = nil
-			end
-
-			self.activeBinds[fireIndex] = nil
+		if type(next(self.active[fireIndex])) == "string" then
+			self:remove(fireIndex)
 		end
 	end
 	TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
@@ -125,6 +119,7 @@ function Fire:removeAll()
 		end
 	end
 	self.active = {}
+	self.activeBinds = {}
 	self.binds = {}
 	self.currentRandom = nil
 end

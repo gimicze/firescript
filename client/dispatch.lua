@@ -94,6 +94,13 @@ function Dispatch:clear(dispatchNumber)
 	if dispatchNumber and self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
 		RemoveBlip(self.blips[dispatchNumber].blip)
 		self.blips[dispatchNumber].blip = false
+	elseif dispatchNumber == 0 then
+		for k, v in pairs(self.blips) do
+			if self.blips[k].blip then
+				RemoveBlip(self.blips[k].blip)
+				self.blips[k].blip = false
+			end
+		end
 	end
 end
 

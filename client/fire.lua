@@ -156,13 +156,14 @@ Citizen.CreateThread(
 	function()
 		while true do
 			local pedCoords = GetEntityCoords(GetPlayerPed(-1))
-			while syncInProgress do
-				Citizen.Wait(10)
-			end
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
-					if not syncInProgress and Fire.active[fireIndex] and Fire.active[fireIndex].flameCoords[flameIndex] and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
+					while syncInProgress do
+						Citizen.Wait(10)
+					end
+					syncInProgress = true
+					if Fire.active[fireIndex] and Fire.active[fireIndex].flameCoords[flameIndex] and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
 						local z = coords.z
 		
 						repeat
@@ -217,6 +218,7 @@ Citizen.CreateThread(
 							Fire.active[fireIndex].flames[flameIndex] = nil
 						end
 					end
+					syncInProgress = false
 				end
 			end
 			Citizen.Wait(1500)

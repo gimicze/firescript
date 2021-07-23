@@ -310,7 +310,9 @@ AddEventHandler(
 		while syncInProgress do
 			Citizen.Wait(10)
 		end
+		syncInProgress = true
 		Fire:remove(fireIndex)
+		syncInProgress = false
 	end
 )
 
@@ -321,7 +323,9 @@ AddEventHandler(
 		while syncInProgress do
 			Citizen.Wait(10)
 		end
+		syncInProgress = true
 		Fire:removeAll()
+		syncInProgress = false
 	end
 )
 
@@ -332,7 +336,9 @@ AddEventHandler(
 		while syncInProgress do
 			Citizen.Wait(10)
 		end
+		syncInProgress = true
 		Fire:removeFlame(fireIndex, flameIndex)
+		syncInProgress = false
     end
 )
 
@@ -340,6 +346,9 @@ RegisterNetEvent("fireClient:createFlame")
 AddEventHandler(
     "fireClient:createFlame",
 	function(fireIndex, flameIndex, coords)
+		while syncInProgress do
+			Citizen.Wait(10)
+		end
 		syncInProgress = true
 		Fire:createFlame(fireIndex, flameIndex, coords)
 		syncInProgress = false
