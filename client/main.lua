@@ -115,7 +115,7 @@ TriggerEvent('chat:addSuggestion', '/firedispatch', 'Manages the fire script dis
 	},
 	{
 		name = "dispatchMessage",
-		help = "Sets a custom dispatch message for the scenario (use only with par. #1 scenario)"
+		help = "(optional) Sets a custom dispatch message for the scenario (use only with par. #1 scenario; leave empty to remove previous custom message)"
 	}
 })
 
