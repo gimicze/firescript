@@ -80,8 +80,8 @@ AddEventHandler(
 				function()
 					if Config.Dispatch.enabled and not Config.Dispatch.disableCalls then
 						Dispatch.expectingInfo[_source] = true
+						TriggerClientEvent('fd:dispatch', _source, coords)
 					end
-					TriggerClientEvent('fd:dispatch', _source, coords)
 				end
 			)
 		end
@@ -353,21 +353,35 @@ RegisterCommand(
 			return
 		end
 
-		local identifier = GetPlayerIdentifier(serverId, 0)
+		if action == "scenario" then
+			if not Fire.registered[serverId] then
+				sendMessage(source, "The specified scenario hasn't been found.")
+				return
+			end
 
-		if not identifier then
-			sendMessage(source, "Player not online.")
-			return
-		end
+			table.remove(args, 1)
+			table.remove(args, 1)
 
-		if action == "add" then
-			Dispatch:subscribe(serverId, (not args[3] or args[3] ~= "false"))
-			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
-		elseif action == "remove" then
-			Dispatch:unsubscribe(serverId, identifier)
-			sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
+			Fire.registered[serverId].message = next(args) and table.concat(args, " ") or nil
+			Fire:saveRegistered()
+			sendMessage(source, ("Changed scenario's (#%s) dispatch message."):format(serverId))
 		else
-			sendMessage(source, "Invalid action.")
+			local identifier = GetPlayerIdentifier(serverId, 0)
+
+			if not identifier then
+				sendMessage(source, "Player not online.")
+				return
+			end
+
+			if action == "add" then
+				Dispatch:subscribe(serverId, (not args[3] or args[3] ~= "false"))
+				sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
+			elseif action == "remove" then
+				Dispatch:unsubscribe(serverId, identifier)
+				sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
+			else
+				sendMessage(source, "Invalid action.")
+			end
 		end
 	end,
 	true

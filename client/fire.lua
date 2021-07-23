@@ -159,6 +159,7 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
+					print(syncInProgress)
 					while syncInProgress do
 						Citizen.Wait(10)
 					end

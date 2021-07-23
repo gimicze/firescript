@@ -4,8 +4,6 @@
 --      License: GNU GPL 3.0      --
 --================================--
 
-local syncInProgress = false
-
 --================================--
 --              CHAT              --
 --================================--
@@ -324,8 +322,11 @@ AddEventHandler(
 			Citizen.Wait(10)
 		end
 		syncInProgress = true
-		Fire:removeAll()
-		syncInProgress = false
+		Fire:removeAll(
+			function()
+				syncInProgress = false
+			end
+		)
 	end
 )
 

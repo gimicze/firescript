@@ -30,3 +30,5 @@ function countElements(table)
 	end
 	return count
 end
+
+syncInProgress = false
