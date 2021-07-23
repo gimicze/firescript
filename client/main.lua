@@ -123,7 +123,7 @@ TriggerEvent('chat:addSuggestion', '/remindme', 'Sets the GPS waypoint to the sp
 TriggerEvent('chat:addSuggestion', '/cleardispatch', 'Clears navigation to the last dispatch call.', {
 	{
 		name = "dispatchID",
-		help = "(optional) The dispatch identifier, if filled in, the call's blip will be removed."
+		help = "(optional) The dispatch identifier, if filled in, the call's blip will be removed. Set to 0 to remove all dispatch blips."
 	}
 })
 
