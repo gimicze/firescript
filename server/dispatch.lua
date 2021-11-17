@@ -66,7 +66,7 @@ end
 
 function Dispatch:getRandomPlayer()
 	if not next(self._players) then
-		return false
+		return next(GetPlayers()) or false
 	end
 	return table.random(self._players)
 end
