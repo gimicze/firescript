@@ -27,5 +27,6 @@ Config.Dispatch = {
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
     playSound = true,
-    enableESX = "fd" -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+    enableJob = "fire", -- test for QBCore - now work v2
+    Framework = "qb", -- * "qb" (qb-core) * "esx" (ESX) * "none" -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
 }

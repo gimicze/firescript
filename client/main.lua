@@ -392,3 +392,21 @@ AddEventHandler(
 		Dispatch:create(dispatchNumber, coords)
 	end
 )
+
+
+--================================--
+--     DISPATCH ROUTE for AUTO-SUBSCRIBE     --
+--================================--
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+    local player = QBCore.Functions.GetPlayerData()
+    PlayerJob = player.job
+    onDuty = player.job.onduty
+	TriggerServerEvent("fire:server:firedispatch", source) -- for firecall 
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate')
+AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
+    PlayerJob = JobInfo
+	OnDuty = false
+end)
