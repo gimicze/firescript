@@ -397,16 +397,38 @@ AddEventHandler(
 --================================--
 --     DISPATCH ROUTE for AUTO-SUBSCRIBE     --
 --================================--
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
-AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
-    local player = QBCore.Functions.GetPlayerData()
-    PlayerJob = player.job
-    onDuty = player.job.onduty
-	TriggerServerEvent("fire:server:firedispatch", source) -- for firecall 
+
+if Config.Dispatch.Framework == "qb" then
+	QBCore = exports['qb-core']:GetCoreObject()
+
+	-- old
+	--QBCore = nil
+	--TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
+end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    QBCore.Functions.GetPlayerData(function(PlayerData)
+        PlayerJob = PlayerData.job
+        if PlayerData.job.onduty then
+            if PlayerData.job.name == Config.Dispatch.enableJob then
+                TriggerServerEvent("QBCore:ToggleDuty")
+				TriggerServerEvent("fire:server:firedispatch", source) -- for firecall 
+            end
+        end
+    end)
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate')
-AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    if JobInfo.name == Config.Dispatch.enableJob then
+        if PlayerJob.onduty then
+            TriggerServerEvent("QBCore:ToggleDuty")
+            TriggerServerEvent("fire:server:firedispatch", source) -- for firecall    
+            OnDuty = false
+        end
+    end
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
-	OnDuty = false
+    onDuty = PlayerJob.onduty
 end)
