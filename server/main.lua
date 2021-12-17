@@ -560,6 +560,10 @@ if Config.Dispatch.Framework == "esx" then
     end)
 elseif Config.Dispatch.Framework == "qb" then
     QBCore = exports["qb-core"]:GetCoreObject()
+
+	-- is you use old QB
+	--QBCore = nil
+	--TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
 end
 
 if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
@@ -597,14 +601,12 @@ if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
 				end
 			end)
         elseif Config.Dispatch.Framework == "qb" then
-			--QBCore = nil
-			--TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
 		
 			local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
 		
-			if type(Config.Dispatch.enableJob) == "table" then
-				for k, v in pairs(Config.Dispatch.enableJob) do
-				   firefighterJobs[Config.Dispatch.enableJob] = true
+			if type(Config.Fire.spawner.firefighterJobs) == "table" then
+				for k, v in pairs(Config.Fire.spawner.firefighterJobs) do
+				   firefighterJobs[Config.Fire.spawner.firefighterJobs] = true
 				end
 			end
 			
@@ -615,12 +617,10 @@ if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
 				for k, v in pairs(QBCore.Functions.GetPlayers()) do
 					local Player = QBCore.Functions.GetPlayer(v)
 					if Player ~= nil then 
-						if (Player.PlayerData.job.name == "fire" and Player.PlayerData.job.onduty) then
-							--if (Config.Dispatch.enableJob and Player.PlayerData.job.onduty) then
+						if (Config.Fire.spawner.firefighterJobs and Player.PlayerData.job.onduty) then
 							Dispatch:subscribe(v, firefighterJobs)
 							-- Notify here
-						elseif (Player.PlayerData.job.name == "fire") then
-							--elseif (Config.Dispatch.enableJob) then
+						elseif (Config.Fire.spawner.firefighterJobs) then
 							Dispatch:unsubscribe(v)
 							-- Notify here
 						end

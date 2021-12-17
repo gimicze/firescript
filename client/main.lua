@@ -410,7 +410,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.GetPlayerData(function(PlayerData)
         PlayerJob = PlayerData.job
         if PlayerData.job.onduty then
-            if PlayerData.job.name == Config.Dispatch.enableJob then
+            if PlayerData.job.name == Config.Fire.spawner.firefighterJobs then
                 TriggerServerEvent("QBCore:ToggleDuty")
 				TriggerServerEvent("fire:server:firedispatch", source) -- for firecall 
             end
@@ -419,7 +419,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    if JobInfo.name == Config.Dispatch.enableJob then
+    if JobInfo.name == Config.Fire.spawner.firefighterJobs then
         if PlayerJob.onduty then
             TriggerServerEvent("QBCore:ToggleDuty")
             TriggerServerEvent("fire:server:firedispatch", source) -- for firecall    
