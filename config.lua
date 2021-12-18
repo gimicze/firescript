@@ -26,7 +26,6 @@ Config.Dispatch = {
     storeLast = 5, -- The client will store the last five dispatch coordinates for use with /remindme <dispatchNumber>
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
-    playSound = true,
-    playSoundv2 = "none", -- test for new Sound (come soon)
+    playSound = "chat", -- test for new Sound "inferno" or "chat" or "none"
     Framework = "qb", -- * "qb" (qb-core) * "esx" (ESX) * "none" -- Set to a esx or qb job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
 }
