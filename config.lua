@@ -6,6 +6,10 @@
 
 Config = {}
 
+Config = {
+Framework = "qb", -- * "qb" (qb-core) * "esx" (ESX) * "none" -- Set to a esx or qb / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+}
+
 Config.Fire = {
     fireSpreadChance = 5, -- Out of 100 chances, how many lead to fire spreading? (not exactly percents)
     maximumSpreads = 5,
@@ -14,8 +18,8 @@ Config.Fire = {
         interval = 1800000, -- Random fire spawn interval (set to nil or false if you don't want to spawn random fires) in ms
         chance = 50, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
         players = 3, -- Sets the minimum number of players subscribed to dispatch for the spawner to spawn fires.
-        firefighterJobs = { -- If using ESX (Config.Dispatch.enableESX), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If not using ESX you can set this to nil
-            ["fd"] = true -- Always set the job name in the key, value has to be true
+        firefighterJobs = { -- If using ESX/QBCore (Config.Framework), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If not using ESX/QBCore you can set this to nil
+            ["ambulance"] = true -- Always set the job name in the key, value has to be true
         }
     }
 }
@@ -27,5 +31,5 @@ Config.Dispatch = {
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
     playSound = true,
-    enableESX = "fd" -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+    JobName = "ambulance" -- Your Fire Job Name -- QB is "ambulance" or ESX job is "fd"
 }
