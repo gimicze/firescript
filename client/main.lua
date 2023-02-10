@@ -392,3 +392,49 @@ AddEventHandler(
 		Dispatch:create(dispatchNumber, coords)
 	end
 )
+
+--================================--
+--     DISPATCH ROUTE for AUTO-SUBSCRIBE     --
+--================================--
+
+if Config.Framework == "qb" then
+	QBCore = exports['qb-core']:GetCoreObject()
+	PlayerJob = {}
+	local PlayerData = QBCore.Functions.GetPlayerData()
+
+	RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+		QBCore.Functions.GetPlayerData(function(PlayerData)
+			PlayerJob = PlayerData.job
+			onDuty = PlayerData.job.onduty
+			if PlayerData.job.onduty then
+				if PlayerData.job.name == Config.Dispatch.JobName then
+					TriggerServerEvent("fire:server:Adddispatch")
+					QBCore.Functions.Notify("Your subscribe to fire call!", "success", 1000) 
+				end
+			end
+		end)
+	end)
+	
+	RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+		QBCore.Functions.GetPlayerData(function(PlayerData)
+			PlayerJob = PlayerData.job
+			if PlayerData.job.name == Config.Dispatch.JobName and onDuty then
+				TriggerServerEvent("fire:server:Removedispatch")
+				QBCore.Functions.Notify("Your unsubscribe from fire call!", "error", 1000) 
+			end
+		end)
+	end)
+	
+	
+	RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+		PlayerJob = JobInfo
+		if JobInfo.name == Config.Dispatch.JobName then
+			TriggerServerEvent("fire:server:Adddispatch")
+			QBCore.Functions.Notify("Your subscribe to fire call!", "success", 1000) 
+		else
+			TriggerServerEvent("fire:server:Removedispatch")
+			OnDuty = false
+			--QBCore.Functions.Notify("Your unsubscribe from fire call!", "error", 1000)   
+		end
+	end)	
+end
