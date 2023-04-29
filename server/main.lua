@@ -557,7 +557,7 @@ if Config.Dispatch.enabled and Config.Dispatch.enableESX then
     ESX = exports["es_extended"]:getSharedObject()
 
     local allowedJobs = {}
-				local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
+	local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
 
     if type(Config.Dispatch.enableESX) == "table" then
         for k, v in pairs(Config.Dispatch.enableESX) do
