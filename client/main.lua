@@ -381,9 +381,28 @@ if Config.Dispatch.enabled == true then
 			local streetName = GetStreetNameFromHashKey(streetName)
 			local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
 			TriggerServerEvent('fireDispatch:create', text, coords)
+			TriggerClientEvent('startFireSiren', -1, Config.FireStationCoords)
 		end
 	)
 end
+
+RegisterNetEvent('startFireSiren')
+AddEventHandler('startFireSiren', function(fireStationCoords)
+    local playerCoords = GetEntityCoords(PlayerPedId(), false)
+		for _, location in pairs(Config.FireLocations) do
+        -- Play the siren sound at the fire station
+			PlaySoundFrontend(-1, "custodyalarm", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
+		   -- Set a timer to stop the siren after 30 seconds (30000 milliseconds)
+			isSirenActive = true
+			Citizen.Wait(30000)
+   
+		   -- Stop the siren sound at the fire station after the timer expires
+			StopEntityAmbientPickup(PlayerPedId())
+			isSirenActive = false
+    	end
+	end
+end)
+
 
 RegisterNetEvent('fireClient:createDispatch')
 AddEventHandler(

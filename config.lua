@@ -20,6 +20,11 @@ Config.Fire = {
     }
 }
 
+Config.FireLocations = {
+    # Main FireStation for Siren
+    { x = 205.84, y = -1651.13, z = 29.8 }
+}
+
 Config.Dispatch = {
     enabled = true, -- Set this to false if you don't want to use the default dispatch system
     timeout = 15000, -- The amount of time in ms to delay the dispatch after the fire has been created
