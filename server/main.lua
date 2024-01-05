@@ -553,44 +553,67 @@ AddEventHandler(
 --         AUTO-SUBSCRIBE         --
 --================================--
 
-if Config.Dispatch.enabled and Config.Dispatch.enableESX then
-    ESX = exports["es_extended"]:getSharedObject()
-
+if Config.Dispatch.enabled and Config.Dispatch.enableQBCore then
     local allowedJobs = {}
-	local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
+    local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
 
-    if type(Config.Dispatch.enableESX) == "table" then
-        for k, v in pairs(Config.Dispatch.enableESX) do
+    if type(Config.Dispatch.enableQBCore) == "table" then
+        for _, v in pairs(Config.Dispatch.enableQBCore) do
             allowedJobs[v] = true
+            firefighterJobs[v] = true
         end
     else
-        allowedJobs[Config.Dispatch.enableESX] = true
-		firefighterJobs[Config.Dispatch.enableESX] = true
+        allowedJobs[Config.Dispatch.enableQBCore] = true
+        firefighterJobs[Config.Dispatch.enableQBCore] = true
     end
 
-    RegisterNetEvent("esx:setJob")
+    RegisterNetEvent("QBCore:Client:OnPlayerLoaded")
     AddEventHandler(
-        "esx:setJob",
-        function(source)
-            local xPlayer = ESX.GetPlayerFromId(source)
-    
-            if allowedJobs[xPlayer.job.name] then
-                Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
+        "QBCore:Client:OnPlayerLoaded",
+        function()
+            local player = QBCore.Functions.GetPlayerData()
+
+            if allowedJobs[player.job.name] then
+                Dispatch:subscribe(source, firefighterJobs[player.job.name])
             else
                 Dispatch:unsubscribe(source)
             end
         end
     )
-    
-    RegisterNetEvent("esx:playerLoaded")
+
+    RegisterNetEvent("QBCore:Client:OnJobUpdate")
     AddEventHandler(
-        "esx:playerLoaded",
-        function(source, xPlayer)
-            if allowedJobs[xPlayer.job.name] then
-                Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
+        "QBCore:Client:OnJobUpdate",
+        function()
+            local player = QBCore.Functions.GetPlayerData()
+
+            if allowedJobs[player.job.name] then
+                Dispatch:subscribe(source, firefighterJobs[player.job.name])
             else
                 Dispatch:unsubscribe(source)
             end
         end
     )
 end
+
+RegisterNetEvent('InteractSound_SV:PlayWithinDistance')
+AddEventHandler('InteractSound_SV:PlayWithinDistance', function(maxDistance, soundFile, soundVolume)
+  if GetConvar("onesync_enableInfinity", "false") == "true" then
+    TriggerClientEvent('InteractSound_CL:PlayWithinDistanceOS', -1, GetEntityCoords(GetPlayerPed(source)), maxDistance, soundFile, soundVolume)
+	print(('[interact-sound] [^3WARNING^7] %s attempted to trigger InteractSound_SV:PlayWithinDistance over the distance limit ' .. DistanceLimit):format(GetPlayerName(src)))
+  else
+    TriggerClientEvent('InteractSound_CL:PlayWithinDistance', -1, source, maxDistance, soundFile, soundVolume)
+	print(('[interact-sound] [^3WARNING^7] %s attempted to trigger InteractSound_SV:PlayWithinDistance over the distance limit ' .. DistanceLimit):format(GetPlayerName(src)))
+  end
+end)
+
+RegisterNetEvent('InteractSound_SV:PlayWithinDistance')
+AddEventHandler('InteractSound_SV:PlayWithinDistance', function(maxDistance, soundFile, soundVolume)
+    local src = source
+    local DistanceLimit = 300
+    if maxDistance < DistanceLimit then
+	TriggerClientEvent('InteractSound_CL:PlayWithinDistance', -1, GetEntityCoords(GetPlayerPed(src)), maxDistance, soundFile, soundVolume)
+    else
+        print(('[interact-sound] [^3WARNING^7] %s attempted to trigger InteractSound_SV:PlayWithinDistance over the distance limit '))
+    end
+end)

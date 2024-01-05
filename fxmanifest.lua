@@ -24,3 +24,8 @@ server_scripts {
 	"server/dispatch.lua",
 	"server/main.lua",
 }
+
+files {
+	'client/html/sounds/custodyalarm.ogg',
+	'custodyalarm.ogg'
+}

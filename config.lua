@@ -15,13 +15,12 @@ Config.Fire = {
         chance = 50, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
         players = 3, -- Sets the minimum number of players subscribed to dispatch for the spawner to spawn fires.
         firefighterJobs = { -- If using ESX (Config.Dispatch.enableESX), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If not using ESX you can set this to nil
-            ["fd"] = true -- Always set the job name in the key, value has to be true
+            ["fire"] = true -- Always set the job name in the key, value has to be true
         }
     }
 }
 
 Config.FireLocations = {
-    # Main FireStation for Siren
     { x = 205.84, y = -1651.13, z = 29.8 }
 }
 
@@ -32,5 +31,5 @@ Config.Dispatch = {
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
     playSound = true,
-    enableESX = "fd" -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+    enableESX = "false" -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
 }

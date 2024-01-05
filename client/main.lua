@@ -38,6 +38,8 @@ TriggerEvent('chat:addSuggestion', '/stopfire', 'Stops the fire', {
 
 TriggerEvent('chat:addSuggestion', '/stopallfires', 'Stops all fires')
 
+TriggerEvent('chat:addSuggestion', '/firesiren', 'start siren test')
+
 TriggerEvent('chat:addSuggestion', '/registerscenario', 'Registers a new fire configuration')
 
 TriggerEvent('chat:addSuggestion', '/addflame', 'Adds a flame to a scenario', {
@@ -144,6 +146,9 @@ TriggerEvent('chat:addSuggestion', '/randomfires', 'Manages the random fire spaw
 	}
 })
 
+
+
+
 --================================--
 --        SYNC ON CONNECT         --
 --================================--
@@ -199,6 +204,10 @@ RegisterCommand(
 	false
 )
 
+RegisterCommand('firesiren', function()
+    TriggerEvent('startFireSiren')
+end, false)
+
 RegisterCommand(
 	'startfire',
 	function(source, args, rawCommand)
@@ -213,6 +222,7 @@ RegisterCommand(
 		local dispatchMessage = next(args) and table.concat(args, " ") or nil
 
 		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch, dispatchMessage)
+		TriggerEvent('startFireSiren')
 	end,
 	false
 )
@@ -381,27 +391,30 @@ if Config.Dispatch.enabled == true then
 			local streetName = GetStreetNameFromHashKey(streetName)
 			local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
 			TriggerServerEvent('fireDispatch:create', text, coords)
-			TriggerClientEvent('startFireSiren', -1, Config.FireStationCoords)
+			TriggerEvent('startFireSiren')
 		end
 	)
 end
 
 RegisterNetEvent('startFireSiren')
-AddEventHandler('startFireSiren', function(fireStationCoords)
-    local playerCoords = GetEntityCoords(PlayerPedId(), false)
-		for _, location in pairs(Config.FireLocations) do
-        -- Play the siren sound at the fire station
-			PlaySoundFrontend(-1, "custodyalarm", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
-		   -- Set a timer to stop the siren after 30 seconds (30000 milliseconds)
-			isSirenActive = true
-			Citizen.Wait(30000)
-   
-		   -- Stop the siren sound at the fire station after the timer expires
-			StopEntityAmbientPickup(PlayerPedId())
-			isSirenActive = false
-    	end
-	end
+AddEventHandler('startFireSiren', function()
+    -- Play the custom sound at the fire station
+    local soundCoords = { x=211.96, y= -1646.23, z= 29.8}
+	local soundRange = 1000
+	local soundVolume = 1
+	local soundfile = "custodyalarm.ogg"
+    --TriggerServerEvent('InteractSound_SV:PlayWithinDistanceOnCoords', soundRange, soundfile, SoundVolume, soundCoords)
+	exports["PendingSound"]:PlayLocalSound(soundCoords, soundfile, GetCurrentResourceName(), 0.7)
+	print(soundCoords)
+    -- Set a timer to stop the siren after 30 seconds (30000 milliseconds)
+    isSirenActive = true
+    Citizen.Wait(6000000)
+    -- Stop the custom sound at the fire station after the timer expires
+	exports["PendingSound"]:StopSound(soundfile, GetCurrentResourceName())
+    isSirenActive = false
 end)
+
+
 
 
 RegisterNetEvent('fireClient:createDispatch')
