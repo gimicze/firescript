@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--       FIRE SCRIPT v1.8.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -19,16 +19,18 @@ Fire = {
 	end
 }
 
-function Fire:create(coords, maximumSpread, spreadChance)
+function Fire:create(coords, maximumSpread, spreadChance, difficulty)
 	maximumSpread = maximumSpread and maximumSpread or Config.Fire.maximumSpreads
 	spreadChance = spreadChance and spreadChance or Config.Fire.fireSpreadChance
+	difficulty = difficulty and difficulty or Config.Fire.difficulty
 
 	local fireIndex = highestIndex(self.active)
 	fireIndex = fireIndex + 1
 
 	self.active[fireIndex] = {
 		maxSpread = maxSpread,
-		spreadChance = spreadChance
+		spreadChance = spreadChance,
+		difficulty = difficulty
 	}
 
 	self:createFlame(fireIndex, coords)
@@ -46,9 +48,9 @@ function Fire:create(coords, maximumSpread, spreadChance)
 						index, flames = highestIndex(self.active, fireIndex)
 						local rndSpread = math.random(100)
 						if flames <= maximumSpread and rndSpread <= spreadChance then
-							local x = self.active[fireIndex][k].x
-							local y = self.active[fireIndex][k].y
-							local z = self.active[fireIndex][k].z
+							local x = self.active[fireIndex][k].v.x
+							local y = self.active[fireIndex][k].v.y
+							local z = self.active[fireIndex][k].v.z
 	
 							local xSpread = math.random(-3, 3)
 							local ySpread = math.random(-3, 3)
@@ -77,7 +79,10 @@ end
 
 function Fire:createFlame(fireIndex, coords)
 	local flameIndex = highestIndex(self.active, fireIndex) + 1
-	self.active[fireIndex][flameIndex] = coords
+	self.active[fireIndex][flameIndex] = {
+		v = coords
+	}
+	self.active[fireIndex][flameIndex].extinguished = self.active[fireIndex].difficulty and 0 or nil
 	TriggerClientEvent('fireClient:createFlame', -1, fireIndex, flameIndex, coords)
 end
 
@@ -101,12 +106,31 @@ function Fire:remove(fireIndex)
 	return true
 end
 
-function Fire:removeFlame(fireIndex, flameIndex)
+function Fire:removeFlame(fireIndex, flameIndex, force)
 	if self.active[fireIndex] and self.active[fireIndex][flameIndex] then
-		self.active[fireIndex][flameIndex] = nil
-		if type(next(self.active[fireIndex])) == "string" then
-			self:remove(fireIndex)
+		if self.active[fireIndex][flameIndex].ignore and not force then
+			return
 		end
+
+		self.active[fireIndex][flameIndex].ignore = true
+		
+		if not force and self.active[fireIndex].difficulty ~= nil and self.active[fireIndex][flameIndex].extinguished < self.active[fireIndex].difficulty then
+			self.active[fireIndex][flameIndex].extinguished = self.active[fireIndex][flameIndex].extinguished + 1
+		else
+			self.active[fireIndex][flameIndex] = nil
+			
+			if type(next(self.active[fireIndex])) == "string" then
+				self:remove(fireIndex)
+			end
+
+			TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
+		end
+
+		Citizen.SetTimeout(1500,
+			function()
+				self.active[fireIndex][flameIndex].ignore = nil
+			end
+		)
 	end
 	TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
 end

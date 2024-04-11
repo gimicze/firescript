@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--       FIRE SCRIPT v1.8.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -131,6 +131,9 @@ Citizen.CreateThread(
 		
 		while true do
 			Citizen.Wait(1500)
+			while syncInProgress do
+				Citizen.Wait(10)
+			end
 			for fireIndex, v in pairs(Fire.active) do
 				if countElements(v.particles) ~= 0 then
 					for flameIndex, _v in pairs(v.particles) do
@@ -142,6 +145,8 @@ Citizen.CreateThread(
 								0.05
 							)
 							if isFirePresent == 0 then
+								RemoveScriptFire(v.flames[flameIndex])
+								v.flames[flameIndex] = StartScriptFire(x, y, z, 0, false)
 								TriggerServerEvent('fireManager:removeFlame', fireIndex, flameIndex)
 							end
 						end
