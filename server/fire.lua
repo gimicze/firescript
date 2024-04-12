@@ -337,9 +337,9 @@ function Fire:stopSpawner()
 	end
 end
 
--- Saving registered fires
+-- Saving scenarios
 
-function Fire:saveRegistered()
+function Fire:saveScenarios()
 	saveData(self.scenario, "fires")
 end
 
