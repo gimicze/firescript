@@ -238,7 +238,7 @@ RegisterCommand(
 RegisterCommand(
 	'addflame',
 	function(source, args, rawCommand)
-		local registeredFireID = tonumber(args[1])
+		local scenarioID = tonumber(args[1])
 		local spread = tonumber(args[2])
 		local chance = tonumber(args[3])
 
@@ -252,8 +252,8 @@ RegisterCommand(
 			coords = vector3(x, y, z)
 		end
 
-		if registeredFireID and spread and chance then
-			TriggerServerEvent('fireManager:command:addflame', registeredFireID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
+		if scenarioID and spread and chance then
+			TriggerServerEvent('fireManager:command:addflame', scenarioID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
 		end
 	end,
 	false

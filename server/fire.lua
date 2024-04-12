@@ -5,14 +5,14 @@
 --================================--
 
 Fire = {
-	registered = {},
+	scenario = {},
 	random = {},
 	active = {},
 	binds = {},
 	activeBinds = {},
 	__index = self,
 	init = function(o)
-		o = o or {registered = {}, random = {}, active = {}, binds = {}, activeBinds = {}}
+		o = o or {scenario = {}, random = {}, active = {}, binds = {}, activeBinds = {}}
 		setmetatable(o, self)
 		self.__index = self
 		return o
@@ -148,46 +148,46 @@ function Fire:removeAll()
 	self.currentRandom = nil
 end
 
-function Fire:register(coords)
-	local registeredFireID = highestIndex(self.registered) + 1
+function Fire:register(coords, difficulty)
+	local scenarioID = highestIndex(self.scenario) + 1
 
-	self.registered[registeredFireID] = {
+	self.scenario[scenarioID] = {
 		flames = {}
 	}
 
 	if coords then
-		self.registered[registeredFireID].dispatchCoords = coords
+		self.scenario[scenarioID].dispatchCoords = coords
 	end
 
-	self:saveRegistered()
+	self:saveScenarios()
 
-	return registeredFireID
+	return scenarioID
 end
 
-function Fire:startRegistered(registeredFireID, triggerDispatch, dispatchPlayer)
-	if not self.registered[registeredFireID] then
+function Fire:startScenario(scenarioID, triggerDispatch, dispatchPlayer)
+	if not self.scenario[scenarioID] then
 		return false
 	end
 
-	if not self.binds[registeredFireID] then
-		self.binds[registeredFireID] = {}
+	if not self.binds[scenarioID] then
+		self.binds[scenarioID] = {}
 	end
 
-	for k, v in pairs(self.registered[registeredFireID].flames) do
-		local fireID = Fire:create(v.coords, v.spread, v.chance)
-		self.binds[registeredFireID][fireID] = true
-		self.activeBinds[fireID] = registeredFireID
+	for k, v in pairs(self.scenario[scenarioID].flames) do
+		local fireID = Fire:create(v.coords, v.spread, v.chance, v.difficulty)
+		self.binds[scenarioID][fireID] = true
+		self.activeBinds[fireID] = scenarioID
 		Citizen.Wait(10)
 	end
 
-	if self.registered[registeredFireID].dispatchCoords and triggerDispatch and dispatchPlayer then
-		local dispatchCoords = self.registered[registeredFireID].dispatchCoords
+	if self.scenario[scenarioID].dispatchCoords and triggerDispatch and dispatchPlayer then
+		local dispatchCoords = self.scenario[scenarioID].dispatchCoords
 		Citizen.SetTimeout(
 			Config.Dispatch.timeout,
 			function()
 				if Config.Dispatch.enabled then
-					if self.registered[registeredFireID].message ~= nil then
-						Dispatch:create(self.registered[registeredFireID].message, dispatchCoords)
+					if self.scenario[scenarioID].message ~= nil then
+						Dispatch:create(self.scenario[scenarioID].message, dispatchCoords)
 					else
 						Dispatch.expectingInfo[dispatchPlayer] = true
 						TriggerClientEvent('fd:dispatch', dispatchPlayer, dispatchCoords)
@@ -200,81 +200,92 @@ function Fire:startRegistered(registeredFireID, triggerDispatch, dispatchPlayer)
 	return true
 end
 
-function Fire:stopRegistered(registeredFireID)
-	if not self.binds[registeredFireID] then
+function Fire:stopScenario(scenarioID)
+	if not self.binds[scenarioID] then
 		return false
 	end
 
-	for k, v in pairs(self.binds[registeredFireID]) do
+	for k, v in pairs(self.binds[scenarioID]) do
 		self.activeBinds[k] = nil
 		Fire:remove(k)
 		Citizen.Wait(10)
 	end
 
-	self.binds[registeredFireID] = nil
+	self.binds[scenarioID] = nil
 
-	if self.currentRandom and self.currentRandom == registeredFireID then
+	if self.currentRandom and self.currentRandom == scenarioID then
 		self.currentRandom = nil
 	end
 
 	return true
 end
 
-function Fire:deleteRegistered(registeredFireID)
-	if not self.registered[registeredFireID] then
+function Fire:deleteScenario(scenarioID)
+	if not self.scenario[scenarioID] then
 		return false
 	end
 
-	if self.registered[registeredFireID].random then
-		self:setRandom(registeredFireID, false)
+	if self.scenario[scenarioID].random then
+		self:setRandom(scenarioID, false)
 	end
 
-	self.registered[registeredFireID] = nil
+	self.scenario[scenarioID] = nil
 
 	self:saveRegistered()
 
 	return true
 end
 
-function Fire:addFlame(registeredFireID, coords, spread, chance)
-	if not (registeredFireID and coords and spread and chance and self.registered[registeredFireID]) then
+function Fire:setScenarioDifficulty(scenarioID, difficulty)
+	if not self.scenario[scenarioID] then
 		return false
 	end
 
-	local flameID = highestIndex(self.registered[registeredFireID].flames) + 1
+	difficulty = difficulty < 1 and nil or difficulty
 
-	self.registered[registeredFireID].flames[flameID] = {}
-	self.registered[registeredFireID].flames[flameID].coords = coords
-	self.registered[registeredFireID].flames[flameID].spread = spread
-	self.registered[registeredFireID].flames[flameID].chance = chance
+	self.scenario[scenarioID].difficulty = difficulty
+	return true
+end
+
+function Fire:addFlame(scenarioID, coords, spread, chance)
+	if not (scenarioID and coords and spread and chance and self.scenario[scenarioID]) then
+		return false
+	end
+
+	local flameID = highestIndex(self.scenario[scenarioID].flames) + 1
+
+	self.scenario[scenarioID].flames[flameID] = {}
+	self.scenario[scenarioID].flames[flameID].coords = coords
+	self.scenario[scenarioID].flames[flameID].spread = spread
+	self.scenario[scenarioID].flames[flameID].chance = chance
 
 	self:saveRegistered()
 
 	return flameID
 end
 
-function Fire:deleteFlame(registeredFireID, flameID)
-	if not (self.registered[registeredFireID] and self.registered[registeredFireID].flames[flameID]) then
+function Fire:deleteFlame(scenarioID, flameID)
+	if not (self.scenario[scenarioID] and self.scenario[scenarioID].flames[flameID]) then
 		return false
 	end
 
-	table.remove(self.registered[registeredFireID].flames, flameID)
+	table.remove(self.scenario[scenarioID].flames, flameID)
 
 	self:saveRegistered()
 
 	return true
 end
 
-function Fire:setRandom(registeredFireID, random)
+function Fire:setRandom(scenarioID, random)
 	random = random or nil
-	registeredFireID = tonumber(registeredFireID)
+	scenarioID = tonumber(scenarioID)
 
-	if not registeredFireID or not self.registered[registeredFireID] then
+	if not scenarioID or not self.scenario[scenarioID] then
 		return false
 	end
 
-	self.registered[registeredFireID].random = random
-	self.random[registeredFireID] = random
+	self.scenario[scenarioID].random = random
+	self.random[scenarioID] = random
 
 	self:saveRegistered()
 
@@ -300,12 +311,12 @@ function Fire:startSpawner(frequency, chance)
 			while spawnerActive do
 				if next(self.random) and not self.currentRandom and Dispatch:firefighters() >= Config.Fire.spawner.players then
 					if math.random(100) < chance then
-						local randomRegisteredFireID = table.random(self.random)
+						local randomscenarioID = table.random(self.random)
 						local randomPlayer = Dispatch:getRandomPlayer()
 
-						if randomRegisteredFireID and randomPlayer then
-							if self:startRegistered(randomRegisteredFireID, true, randomPlayer) then
-								self.currentRandom = randomRegisteredFireID
+						if randomscenarioID and randomPlayer then
+							if self:startScenario(randomscenarioID, true, randomPlayer) then
+								self.currentRandom = randomscenarioID
 							end
 						end
 					end
@@ -329,10 +340,10 @@ end
 -- Saving registered fires
 
 function Fire:saveRegistered()
-	saveData(self.registered, "fires")
+	saveData(self.scenario, "fires")
 end
 
-function Fire:loadRegistered()
+function Fire:loadScenarios()
 	local firesFile = loadData("fires")
 	self.random = {}
 	if firesFile ~= nil then
@@ -347,7 +358,7 @@ function Fire:loadRegistered()
 				self.random[index] = true
 			end
 		end
-		self.registered = firesFile
+		self.scenario = firesFile
 	else
 		saveData({}, "fires")
 	end

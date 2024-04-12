@@ -22,7 +22,7 @@ Citizen.CreateThread(
 function onResourceStart(resourceName)
 	if (GetCurrentResourceName() == resourceName) then
 		Whitelist:load()
-		Fire:loadRegistered()
+		Fire:loadScenarios()
 		if Config.Fire.spawner.enableOnStartup and Config.Fire.spawner.interval then
 			if not Fire:startSpawner() then
 				sendMessage(0, "Couldn't start fire spawner.")
@@ -101,30 +101,30 @@ AddEventHandler(
 			return
 		end
 
-		local registeredFireID = Fire:register(coords)
+		local scenarioID = Fire:register(coords)
 
-		sendMessage(source, "Created scenario #" .. registeredFireID)
+		sendMessage(source, "Created scenario #" .. scenarioID)
 	end
 )
 
 RegisterNetEvent('fireManager:command:addflame')
 AddEventHandler(
 	'fireManager:command:addflame',
-	function(registeredFireID, coords, spread, chance)
+	function(scenarioID, coords, spread, chance)
 		if not Whitelist:isWhitelisted(source, "firescript.manage") then
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
-		local registeredFireID = tonumber(registeredFireID)
+		local scenarioID = tonumber(scenarioID)
 		local spread = tonumber(spread)
 		local chance = tonumber(chance)
 
-		if not (coords and registeredFireID and spread and chance) then
+		if not (coords and scenarioID and spread and chance) then
 			return
 		end
 
-		local flameID = Fire:addFlame(registeredFireID, coords, spread, chance)
+		local flameID = Fire:addFlame(scenarioID, coords, spread, chance)
 
 		if not flameID then
 			sendMessage(source, "No such scenario.")
@@ -193,14 +193,14 @@ RegisterCommand(
 			return
 		end
 
-		local registeredFireID = tonumber(args[1])
+		local scenarioID = tonumber(args[1])
 		local flameID = tonumber(args[2])
 
-		if not (registeredFireID and flameID) then
+		if not (scenarioID and flameID) then
 			return
 		end
 
-		local success = Fire:deleteFlame(registeredFireID, flameID)
+		local success = Fire:deleteFlame(scenarioID, flameID)
 
 		if not success then
 			sendMessage(source, "No such fire or flame registered.")
@@ -219,19 +219,19 @@ RegisterCommand(
 			sendMessage(source, "Insufficient permissions.")
 			return
 		end
-		local registeredFireID = tonumber(args[1])
-		if not registeredFireID then
+		local scenarioID = tonumber(args[1])
+		if not scenarioID then
 			return
 		end
 
-		local success = Fire:deleteRegistered(registeredFireID)
+		local success = Fire:deleteScenario(scenarioID)
 
 		if not success then
 			sendMessage(source, "No such scenario.")
 			return
 		end
 
-		sendMessage(source, "Removed scenario #" .. registeredFireID)
+		sendMessage(source, "Removed scenario #" .. scenarioID)
 	end,
 	false
 )
@@ -244,21 +244,21 @@ RegisterCommand(
 			return
 		end
 		local _source = source
-		local registeredFireID = tonumber(args[1])
+		local scenarioID = tonumber(args[1])
 		local triggerDispatch = args[2] == "true"
 
-		if not registeredFireID then
+		if not scenarioID then
 			return
 		end
 
-		local success = Fire:startRegistered(registeredFireID, triggerDispatch, source)
+		local success = Fire:startScenario(scenarioID, triggerDispatch, source)
 
 		if not success then
 			sendMessage(source, "No such scenario.")
 			return
 		end
 
-		sendMessage(source, "Started scenario #" .. registeredFireID)
+		sendMessage(source, "Started scenario #" .. scenarioID)
 	end,
 	false
 )
@@ -271,20 +271,20 @@ RegisterCommand(
 			return
 		end
 		local _source = source
-		local registeredFireID = tonumber(args[1])
+		local scenarioID = tonumber(args[1])
 
-		if not registeredFireID then
+		if not scenarioID then
 			return
 		end
 
-		local success = Fire:stopRegistered(registeredFireID)
+		local success = Fire:stopScenario(scenarioID)
 
 		if not success then
 			sendMessage(source, "No such scenario active.")
 			return
 		end
 
-		sendMessage(source, "Stopping scenario #" .. registeredFireID)
+		sendMessage(source, "Stopping scenario #" .. scenarioID)
 
 		TriggerClientEvent("pNotify:SendNotification", source, {
 			text = "Fire going out...",
@@ -358,7 +358,7 @@ RegisterCommand(
 		end
 
 		if action == "scenario" then
-			if not Fire.registered[serverId] then
+			if not Fire.scenario[serverId] then
 				sendMessage(source, "The specified scenario hasn't been found.")
 				return
 			end
@@ -366,8 +366,8 @@ RegisterCommand(
 			table.remove(args, 1)
 			table.remove(args, 1)
 
-			Fire.registered[serverId].message = next(args) and table.concat(args, " ") or nil
-			Fire:saveRegistered()
+			Fire.scenario[serverId].message = next(args) and table.concat(args, " ") or nil
+			Fire:saveScenarios()
 			sendMessage(source, ("Changed scenario's (#%s) dispatch message."):format(serverId))
 		else
 			local identifier = GetPlayerIdentifier(serverId, 0)
@@ -401,26 +401,26 @@ RegisterCommand(
 
 		local _source = source
 		local action = args[1]
-		local registeredFireID = tonumber(args[2])
+		local scenarioID = tonumber(args[2])
 
 		if not action then
 			return
 		end
 
 		if action == "add" then
-			if not registeredFireID then
+			if not scenarioID then
 				sendMessage(source, "Invalid argument (2).")
 				return
 			end
-			Fire:setRandom(registeredFireID, true)
-			sendMessage(source, ("Set scenario #%s to start randomly."):format(registeredFireID))
+			Fire:setRandom(scenarioID, true)
+			sendMessage(source, ("Set scenario #%s to start randomly."):format(scenarioID))
 		elseif action == "remove" then
-			if not registeredFireID then
+			if not scenarioID then
 				sendMessage(source, "Invalid argument (2).")
 				return
 			end
-			Fire:setRandom(registeredFireID, false)
-			sendMessage(source, ("Set scenario #%s not to start randomly."):format(registeredFireID))
+			Fire:setRandom(scenarioID, false)
+			sendMessage(source, ("Set scenario #%s not to start randomly."):format(scenarioID))
 		elseif action == "disable" then
 			Fire:stopSpawner()
 			sendMessage(source, "Disabled random fire spawn.")
@@ -432,6 +432,26 @@ RegisterCommand(
 		end
 	end,
 	false
+)
+
+RegisterCommand(
+	'setscenariodifficulty',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+
+		local scenarioID = tonumber(args[1])
+		local difficulty = tonumber(args[2])
+
+		if not scenarioID or not difficulty or difficulty < 0 then
+			sendMessage(source, "Invalid argument")
+			return
+		end
+
+		Fire:setScenarioDifficulty(scenarioID, difficulty)
+	end
 )
 
 --================================--
