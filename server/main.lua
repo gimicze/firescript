@@ -450,7 +450,9 @@ RegisterCommand(
 			return
 		end
 
-		Fire:setScenarioDifficulty(scenarioID, difficulty)
+		local message = Fire:setScenarioDifficulty(scenarioID, difficulty) and ("Scenario #%s set to difficulty %s"):format(scenarioID, difficulty) or ("Scenario #%s doesn't exist"):format(scenarioID)
+
+		sendMessage(source, message)
 	end
 )
 

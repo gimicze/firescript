@@ -132,7 +132,6 @@ function Fire:removeFlame(fireIndex, flameIndex, force)
 			end
 		)
 	end
-	TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
 end
 
 function Fire:removeAll()
@@ -174,7 +173,7 @@ function Fire:startScenario(scenarioID, triggerDispatch, dispatchPlayer)
 	end
 
 	for k, v in pairs(self.scenario[scenarioID].flames) do
-		local fireID = Fire:create(v.coords, v.spread, v.chance, v.difficulty)
+		local fireID = Fire:create(v.coords, v.spread, v.chance, self.scenario[scenarioID].difficulty)
 		self.binds[scenarioID][fireID] = true
 		self.activeBinds[fireID] = scenarioID
 		Citizen.Wait(10)
@@ -244,6 +243,9 @@ function Fire:setScenarioDifficulty(scenarioID, difficulty)
 	difficulty = difficulty < 1 and nil or difficulty
 
 	self.scenario[scenarioID].difficulty = difficulty
+
+	self:saveScenarios()
+
 	return true
 end
 

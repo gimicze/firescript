@@ -146,7 +146,7 @@ Citizen.CreateThread(
 							)
 							if isFirePresent == 0 then
 								RemoveScriptFire(v.flames[flameIndex])
-								v.flames[flameIndex] = StartScriptFire(x, y, z, 0, false)
+								v.flames[flameIndex] = StartScriptFire(v.flameCoords[flameIndex].x, v.flameCoords[flameIndex].y, v.flameCoords[flameIndex].z, 0, false)
 								TriggerServerEvent('fireManager:removeFlame', fireIndex, flameIndex)
 							end
 						end
