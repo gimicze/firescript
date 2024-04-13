@@ -144,6 +144,17 @@ TriggerEvent('chat:addSuggestion', '/randomfires', 'Manages the random fire spaw
 	}
 })
 
+TriggerEvent('chat:addSuggestion', '/setscenariodifficulty', 'Sets a difficulty specifically for one scenario', {
+	{
+		name = "scenarioID",
+		help = "The scenario identifier"
+	},
+	{
+		name = "difficulty",
+		help = "Difficulty to be assigned to the scenario (leave empty or 0 to set to default)"
+	}
+})
+
 --================================--
 --        SYNC ON CONNECT         --
 --================================--
