@@ -82,7 +82,7 @@ function Fire:createFlame(fireIndex, coords)
 	self.active[fireIndex][flameIndex] = {
 		v = coords
 	}
-	self.active[fireIndex][flameIndex].extinguished = self.active[fireIndex].difficulty and 0 or nil
+	self.active[fireIndex][flameIndex].extinguished = self.active[fireIndex].difficulty and 1 or nil
 	TriggerClientEvent('fireClient:createFlame', -1, fireIndex, flameIndex, coords)
 end
 
@@ -116,6 +116,12 @@ function Fire:removeFlame(fireIndex, flameIndex, force)
 		
 		if not force and self.active[fireIndex].difficulty ~= nil and self.active[fireIndex][flameIndex].extinguished < self.active[fireIndex].difficulty then
 			self.active[fireIndex][flameIndex].extinguished = self.active[fireIndex][flameIndex].extinguished + 1
+
+			Citizen.SetTimeout(1500,
+				function()
+					self.active[fireIndex][flameIndex].ignore = nil
+				end
+			)
 		else
 			self.active[fireIndex][flameIndex] = nil
 			
@@ -125,12 +131,6 @@ function Fire:removeFlame(fireIndex, flameIndex, force)
 
 			TriggerClientEvent('fireClient:removeFlame', -1, fireIndex, flameIndex)
 		end
-
-		Citizen.SetTimeout(1500,
-			function()
-				self.active[fireIndex][flameIndex].ignore = nil
-			end
-		)
 	end
 end
 

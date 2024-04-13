@@ -46,6 +46,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 			5000,
 			function()
 				StopParticleFxLooped(particles, false)
+				Citizen.Wait(1500)
 				RemoveParticleFx(particles, true)
 			end
 		)
@@ -55,8 +56,14 @@ function Fire:removeFlame(fireIndex, flameIndex)
 	if self.active[fireIndex].flameParticles[flameIndex] and self.active[fireIndex].flameParticles[flameIndex] ~= 0 then
 		local flameParticles = self.active[fireIndex].flameParticles[flameIndex]
 		Citizen.SetTimeout(
-			5000,
+			1000,
 			function()
+				local scale = 1.0
+				while scale > 0.3 do
+					scale = scale - 0.01
+					SetParticleFxLooperScale(flameParticles, scale)
+					Citizen.Wait(60)
+				end
 				StopParticleFxLooped(flameParticles, false)
 				RemoveParticleFx(flameParticles, true)
 			end
