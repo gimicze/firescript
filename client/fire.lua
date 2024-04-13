@@ -23,7 +23,8 @@ function Fire:createFlame(fireIndex, flameIndex, coords)
 				flameCoords = {},
 				flames = {},
 				particles = {},
-				flameParticles = {}
+				flameParticles = {},
+				sound = {}
 			}
         end
 		self.active[fireIndex].flameCoords[flameIndex] = coords
@@ -55,6 +56,8 @@ function Fire:removeFlame(fireIndex, flameIndex)
 
 	if self.active[fireIndex].flameParticles[flameIndex] and self.active[fireIndex].flameParticles[flameIndex] ~= 0 then
 		local flameParticles = self.active[fireIndex].flameParticles[flameIndex]
+		local soundID = self.active[fireIndex].sound[flameIndex]
+
 		Citizen.SetTimeout(
 			1000,
 			function()
@@ -64,6 +67,10 @@ function Fire:removeFlame(fireIndex, flameIndex)
 					SetParticleFxLooperScale(flameParticles, scale)
 					Citizen.Wait(60)
 				end
+
+				StopSound(soundID)
+				ReleaseSoundId(soundID)
+
 				StopParticleFxLooped(flameParticles, false)
 				RemoveParticleFx(flameParticles, true)
 			end
@@ -191,6 +198,9 @@ Citizen.CreateThread(
 
 						if Fire.active[fireIndex].flames[flameIndex] then -- Make sure the fire has been spawned properly
 							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
+
+							Fire.active[fireIndex].sound[flameIndex] = GetSoundId()
+							PlaySoundFromCoord(soundID, "LAMAR1_WAREHOUSE_FIRE", coords.x, coords.y, z, 0, 0, 0, 0)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
 							
