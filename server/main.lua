@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--       FIRE SCRIPT v1.8.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -8,7 +8,7 @@
 --         VERSION CHECK          --
 --================================--
 
-Version = "1.8.0"
+Version = GetResourceMetadata(GetCurrentResourceName(), "version")
 LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
 
 Citizen.CreateThread(

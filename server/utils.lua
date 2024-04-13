@@ -17,7 +17,7 @@ function checkVersion()
 				if data.tag_name == "v" .. Version then
 					print("^2[FireScript]^7 Up to date.")
 				else
-					print(("^3[FireScript]^7 The script isn't up to date! Please update to version %s."):format(data.tag_name))
+					print(("^3[FireScript]^7 The script isn't up to date! Please see version %s."):format(data.tag_name))
 				end
 			else
 				print(("^3[FireScript]^7 Couldn't check version! Error code %s."):format(errorCode))
