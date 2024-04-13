@@ -200,7 +200,7 @@ Citizen.CreateThread(
 							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 
 							Fire.active[fireIndex].sound[flameIndex] = GetSoundId()
-							PlaySoundFromCoord(soundID, "LAMAR1_WAREHOUSE_FIRE", coords.x, coords.y, z, 0, 0, 0, 0)
+							PlaySoundFromCoord(Fire.active[fireIndex].sound[flameIndex], "LAMAR1_WAREHOUSE_FIRE", coords.x, coords.y, z, 0, 0, 0, 0)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
 							
