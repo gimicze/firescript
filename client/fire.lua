@@ -64,7 +64,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 				local scale = 1.0
 				while scale > 0.3 do
 					scale = scale - 0.01
-					SetParticleFxLooperScale(flameParticles, scale)
+					SetParticleFxLoopedScale(flameParticles, scale)
 					Citizen.Wait(60)
 				end
 
