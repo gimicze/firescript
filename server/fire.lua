@@ -231,7 +231,7 @@ function Fire:deleteScenario(scenarioID)
 
 	self.scenario[scenarioID] = nil
 
-	self:saveRegistered()
+	self:saveScenarios()
 
 	return true
 end
@@ -259,7 +259,7 @@ function Fire:addFlame(scenarioID, coords, spread, chance)
 	self.scenario[scenarioID].flames[flameID].spread = spread
 	self.scenario[scenarioID].flames[flameID].chance = chance
 
-	self:saveRegistered()
+	self:saveScenarios()
 
 	return flameID
 end
@@ -271,7 +271,7 @@ function Fire:deleteFlame(scenarioID, flameID)
 
 	table.remove(self.scenario[scenarioID].flames, flameID)
 
-	self:saveRegistered()
+	self:saveScenarios()
 
 	return true
 end
@@ -287,7 +287,7 @@ function Fire:setRandom(scenarioID, random)
 	self.scenario[scenarioID].random = random
 	self.random[scenarioID] = random
 
-	self:saveRegistered()
+	self:saveScenarios()
 
 	return true
 end
