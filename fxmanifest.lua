@@ -5,7 +5,7 @@ games {
 }
 
 author 'GIMI, foregz, Albo1125'
-version '1.7.6'
+version '1.8.0'
 description 'Fire Script'
 
 client_scripts {
@@ -24,3 +24,11 @@ server_scripts {
 	"server/dispatch.lua",
 	"server/main.lua",
 }
+
+files {
+	'data/firescript_alarm.dat54.rel',
+	'toneaudio/firescript_alarm.awc',
+}
+
+data_file 'AUDIO_WAVEPACK' 'toneaudio'
+data_file 'AUDIO_SOUNDDATA' 'data/firescript_alarm.dat'

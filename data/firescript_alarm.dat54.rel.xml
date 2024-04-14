@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dat54>
+    <Version value="7314722" />
+    <ContainerPaths>
+        <Item>toneaudio\firescript_alarm</Item>
+    </ContainerPaths>
+    <Items>
+        <!-- SimpleSounds -->
+        <Item type="SimpleSound">
+            <Name>long_beeps</Name>
+            <Header>
+                <Flags value="0x0000C004" />
+                <Volume value="200" />
+                <DopplerFactor value="0" />
+                <Category>scripted</Category>
+            </Header>
+            <ContainerName>toneaudio/firescript_alarm</ContainerName>
+            <FileName>long_beeps</FileName>
+            <WaveSlotNum value="0" />
+        </Item>
+        <Item type="SimpleSound">
+            <Name>short_beeps</Name>
+            <Header>
+                <Flags value="0x0000C004" />
+                <Volume value="200" />
+                <DopplerFactor value="0" />
+                <Category>scripted</Category>
+            </Header>
+            <ContainerName>toneaudio/firescript_alarm</ContainerName>
+            <FileName>short_beeps</FileName>
+            <WaveSlotNum value="0" />
+        </Item>
+
+        <!-- SoundSets !-->
+        <Item type="SoundSet">
+            <Name>firescript_alarm</Name>
+            <Header>
+                <Flags value="0xAAAAAAAA" />
+            </Header>
+            <SoundSets>
+                <Item>
+                    <ScriptName>long_beeps</ScriptName>
+                    <ChildSound>long_beeps</ChildSound>
+                </Item>
+                <Item>
+                    <ScriptName>short_beeps</ScriptName>
+                    <ChildSound>short_beeps</ChildSound>
+                </Item>
+            </SoundSets>
+        </Item>
+    </Items>
+</Dat54>

@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--       FIRE SCRIPT v1.8.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -23,7 +23,8 @@ function Fire:createFlame(fireIndex, flameIndex, coords)
 				flameCoords = {},
 				flames = {},
 				particles = {},
-				flameParticles = {}
+				flameParticles = {},
+				sound = {}
 			}
         end
 		self.active[fireIndex].flameCoords[flameIndex] = coords
@@ -46,6 +47,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 			5000,
 			function()
 				StopParticleFxLooped(particles, false)
+				Citizen.Wait(1500)
 				RemoveParticleFx(particles, true)
 			end
 		)
@@ -54,9 +56,21 @@ function Fire:removeFlame(fireIndex, flameIndex)
 
 	if self.active[fireIndex].flameParticles[flameIndex] and self.active[fireIndex].flameParticles[flameIndex] ~= 0 then
 		local flameParticles = self.active[fireIndex].flameParticles[flameIndex]
+		local soundID = self.active[fireIndex].sound[flameIndex]
+
 		Citizen.SetTimeout(
-			5000,
+			1000,
 			function()
+				local scale = 1.0
+				while scale > 0.3 do
+					scale = scale - 0.01
+					SetParticleFxLoopedScale(flameParticles, scale)
+					Citizen.Wait(60)
+				end
+
+				StopSound(soundID)
+				ReleaseSoundId(soundID)
+
 				StopParticleFxLooped(flameParticles, false)
 				RemoveParticleFx(flameParticles, true)
 			end
@@ -131,6 +145,9 @@ Citizen.CreateThread(
 		
 		while true do
 			Citizen.Wait(1500)
+			while syncInProgress do
+				Citizen.Wait(10)
+			end
 			for fireIndex, v in pairs(Fire.active) do
 				if countElements(v.particles) ~= 0 then
 					for flameIndex, _v in pairs(v.particles) do
@@ -142,6 +159,8 @@ Citizen.CreateThread(
 								0.05
 							)
 							if isFirePresent == 0 then
+								RemoveScriptFire(v.flames[flameIndex])
+								v.flames[flameIndex] = StartScriptFire(v.flameCoords[flameIndex].x, v.flameCoords[flameIndex].y, v.flameCoords[flameIndex].z, 0, false)
 								TriggerServerEvent('fireManager:removeFlame', fireIndex, flameIndex)
 							end
 						end
@@ -179,6 +198,9 @@ Citizen.CreateThread(
 
 						if Fire.active[fireIndex].flames[flameIndex] then -- Make sure the fire has been spawned properly
 							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
+
+							Fire.active[fireIndex].sound[flameIndex] = GetSoundId()
+							PlaySoundFromCoord(Fire.active[fireIndex].sound[flameIndex], "LAMAR1_WAREHOUSE_FIRE", coords.x, coords.y, z, 0, 0, 0, 0)
 		
 							SetPtfxAssetNextCall("scr_agencyheistb")
 							

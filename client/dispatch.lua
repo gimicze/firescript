@@ -88,6 +88,35 @@ function Dispatch:create(dispatchNumber, coords)
 	self.lastCall = dispatchNumber
 end
 
+function Dispatch:playTone()
+	if not (Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table") then
+		return false
+	end
+
+	for k, v in ipairs(Config.Dispatch.toneSources) do
+		local soundID = GetSoundId() -- The databank gets loaded when the script launches
+
+		Citizen.CreateThread(
+			function()
+				for i = 1,3 do
+					PlaySoundFromCoord(soundID, "long_beeps", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
+				end
+
+				Citizen.Wait(8000)
+
+				for i = 1,3 do
+					PlaySoundFromCoord(soundID, "short_beeps", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
+				end
+
+				Citizen.Wait(5000)
+
+				ReleaseSoundId(soundID)
+			end
+		)
+	end
+	return true
+end
+
 function Dispatch:clear(dispatchNumber)
 	ClearGpsMultiRoute()
 

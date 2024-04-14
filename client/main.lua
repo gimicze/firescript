@@ -4,6 +4,8 @@
 --      License: GNU GPL 3.0      --
 --================================--
 
+Version = GetResourceMetadata(GetCurrentResourceName(), "version")
+
 --================================--
 --              CHAT              --
 --================================--
@@ -144,6 +146,17 @@ TriggerEvent('chat:addSuggestion', '/randomfires', 'Manages the random fire spaw
 	}
 })
 
+TriggerEvent('chat:addSuggestion', '/setscenariodifficulty', 'Sets a difficulty specifically for one scenario', {
+	{
+		name = "scenarioID",
+		help = "The scenario identifier"
+	},
+	{
+		name = "difficulty",
+		help = "Difficulty to be assigned to the scenario (leave empty or 0 to set to default)"
+	}
+})
+
 --================================--
 --        SYNC ON CONNECT         --
 --================================--
@@ -164,6 +177,12 @@ AddEventHandler(
 		if resourceName == GetCurrentResourceName() then
 			-- Check the command whitelist
 			TriggerServerEvent('fireManager:checkWhitelist')
+
+			if Config.Dispatch.toneSources then
+				while not RequestScriptAudioBank('toneaudio/firescript_alarm', false) do
+					Citizen.Wait(10)
+				end
+			end
 		end
 	end
 )
@@ -238,7 +257,7 @@ RegisterCommand(
 RegisterCommand(
 	'addflame',
 	function(source, args, rawCommand)
-		local registeredFireID = tonumber(args[1])
+		local scenarioID = tonumber(args[1])
 		local spread = tonumber(args[2])
 		local chance = tonumber(args[3])
 
@@ -252,8 +271,8 @@ RegisterCommand(
 			coords = vector3(x, y, z)
 		end
 
-		if registeredFireID and spread and chance then
-			TriggerServerEvent('fireManager:command:addflame', registeredFireID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
+		if scenarioID and spread and chance then
+			TriggerServerEvent('fireManager:command:addflame', scenarioID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
 		end
 	end,
 	false
@@ -379,7 +398,7 @@ if Config.Dispatch.enabled == true then
 		function(coords)
 			local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
 			local streetName = GetStreetNameFromHashKey(streetName)
-			local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
+			local text = ("Fire near %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
 			TriggerServerEvent('fireDispatch:create', text, coords)
 		end
 	)
@@ -391,4 +410,10 @@ AddEventHandler(
 	function(dispatchNumber, coords)
 		Dispatch:create(dispatchNumber, coords)
 	end
+)
+
+RegisterNetEvent('fireClient:playTone')
+AddEventHandler(
+	'fireClient:playTone',
+	Dispatch.playTone
 )
