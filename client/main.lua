@@ -188,6 +188,19 @@ AddEventHandler(
 )
 
 --================================--
+--            CLEAN UP            --
+--================================--
+
+AddEventHandler(
+	'onClientResourceStop',
+	function(resourceName)
+		if resourceName == GetCurrentResourceName() then
+			ReleaseScriptAudioBank('toneaudio/firescript_alarm')
+		end
+	end
+)
+
+--================================--
 --            COMMANDS            --
 --================================--
 
