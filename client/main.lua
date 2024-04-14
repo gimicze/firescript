@@ -177,7 +177,7 @@ AddEventHandler(
 			TriggerServerEvent('fireManager:checkWhitelist')
 
 			if Config.Dispatch.toneSources then
-				while not RequestScriptAudioBank('audio/firescript_alarm', false) do
+				while not RequestScriptAudioBank('toneaudio/firescript_alarm', false) do
 					Citizen.Wait(10)
 				end
 			end

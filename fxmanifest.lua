@@ -27,8 +27,8 @@ server_scripts {
 
 files {
 	'data/firescript_alarm.dat54.rel',
-	'audio/firescript_alarm.awc',
+	'toneaudio/firescript_alarm.awc',
 }
 
-data_file 'AUDIO_WAVEPACK' 'audio'
+data_file 'AUDIO_WAVEPACK' 'toneaudio'
 data_file 'AUDIO_SOUNDDATA' 'data/firescript_alarm.dat'
