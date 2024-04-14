@@ -4,6 +4,8 @@
 --      License: GNU GPL 3.0      --
 --================================--
 
+Version = GetResourceMetadata(GetCurrentResourceName(), "version")
+
 --================================--
 --              CHAT              --
 --================================--
@@ -396,7 +398,7 @@ if Config.Dispatch.enabled == true then
 		function(coords)
 			local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
 			local streetName = GetStreetNameFromHashKey(streetName)
-			local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
+			local text = ("Fire near %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
 			TriggerServerEvent('fireDispatch:create', text, coords)
 		end
 	)
@@ -413,5 +415,5 @@ AddEventHandler(
 RegisterNetEvent('fireClient:playTone')
 AddEventHandler(
 	'fireClient:playTone',
-	Dispatch:playTone()
+	Dispatch.playTone
 )

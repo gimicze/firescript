@@ -180,6 +180,10 @@ function Fire:startScenario(scenarioID, triggerDispatch, dispatchPlayer)
 	end
 
 	if self.scenario[scenarioID].dispatchCoords and triggerDispatch and dispatchPlayer then
+		if Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table" then
+			TriggerClientEvent('fireClient:playTone', -1)
+		end
+		
 		local dispatchCoords = self.scenario[scenarioID].dispatchCoords
 		Citizen.SetTimeout(
 			Config.Dispatch.timeout,

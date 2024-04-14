@@ -74,11 +74,11 @@ AddEventHandler(
 
 		sendMessage(source, "Spawned fire #" .. fireIndex)
 
-		if Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table" then
-			TriggerClientEvent('fireClient:playTone', -1)
-		end
-
 		if triggerDispatch then
+			if Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table" then
+				TriggerClientEvent('fireClient:playTone', -1)
+			end
+			
 			Citizen.SetTimeout(
 				Config.Dispatch.timeout,
 				function()
