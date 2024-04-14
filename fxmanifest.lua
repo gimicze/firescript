@@ -24,3 +24,11 @@ server_scripts {
 	"server/dispatch.lua",
 	"server/main.lua",
 }
+
+files {
+	'data/firescript_alarm.dat54.rel',
+	'audio/firescript_alarm.awc',
+}
+
+data_file 'AUDIO_WAVEPACK' 'audio'
+data_file 'AUDIO_SOUNDDATA' 'data/firescript_alarm.dat'

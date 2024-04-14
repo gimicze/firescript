@@ -400,6 +400,9 @@ RegisterNetEvent('fireClient:createDispatch')
 AddEventHandler(
 	'fireClient:createDispatch',
 	function(dispatchNumber, coords)
+		if Dispatch:playTone() then
+			Citizen.Wait(5000)
+		end
 		Dispatch:create(dispatchNumber, coords)
 	end
 )

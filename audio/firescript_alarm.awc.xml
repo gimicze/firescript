@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AudioWaveContainer>
+  <Version value="1" />
+  <ChunkIndices value="True" />
+  <Streams>
+    <Item>
+      <Name>long_beeps</Name>
+      <FileName>long_beeps.wav</FileName>
+      <Chunks>
+        <Item>
+          <Type>peak</Type>
+        </Item>
+        <Item>
+          <Type>data</Type>
+        </Item>
+        <Item>
+          <Type>format</Type>
+          <Codec>PCM</Codec>
+          <Samples value="236384" />
+          <SampleRate value="32000" />
+          <Headroom value="5" />
+          <PlayBegin value="0" />
+          <PlayEnd value="0" />
+          <LoopBegin value="0" />
+          <LoopEnd value="0" />
+          <LoopPoint value="-1" />
+          <Peak unk="0" />
+        </Item>
+      </Chunks>
+    </Item>
+    <Item>
+      <Name>short_beeps</Name>
+      <FileName>short_beeps.wav</FileName>
+      <Chunks>
+        <Item>
+          <Type>peak</Type>
+        </Item>
+        <Item>
+          <Type>data</Type>
+        </Item>
+        <Item>
+          <Type>format</Type>
+          <Codec>PCM</Codec>
+          <Samples value="93472" />
+          <SampleRate value="32000" />
+          <Headroom value="5" />
+          <PlayBegin value="0" />
+          <PlayEnd value="0" />
+          <LoopBegin value="0" />
+          <LoopEnd value="0" />
+          <LoopPoint value="-1" />
+          <Peak unk="0" />
+        </Item>
+      </Chunks>
+    </Item>
+  </Streams>
+</AudioWaveContainer>
