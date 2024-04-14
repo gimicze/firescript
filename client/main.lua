@@ -175,6 +175,12 @@ AddEventHandler(
 		if resourceName == GetCurrentResourceName() then
 			-- Check the command whitelist
 			TriggerServerEvent('fireManager:checkWhitelist')
+
+			if Config.Dispatch.toneSources then
+				while not RequestScriptAudioBank('audio/firescript_alarm', false) do
+					Citizen.Wait(10)
+				end
+			end
 		end
 	end
 )
@@ -400,9 +406,12 @@ RegisterNetEvent('fireClient:createDispatch')
 AddEventHandler(
 	'fireClient:createDispatch',
 	function(dispatchNumber, coords)
-		if Dispatch:playTone() then
-			Citizen.Wait(5000)
-		end
 		Dispatch:create(dispatchNumber, coords)
 	end
+)
+
+RegisterNetEvent('fireClient:playTone')
+AddEventHandler(
+	'fireClient:playTone',
+	Dispatch:playTone()
 )

@@ -94,9 +94,8 @@ function Dispatch:playTone()
 	end
 
 	for k, v in ipairs(Config.Dispatch.toneSources) do
-		local soundID = GetSoundId()
+		local soundID = GetSoundId() -- The databank gets loaded when the script launches
 
-		--PlaySoundFromCoord(soundId1, "bell", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
 		Citizen.CreateThread(
 			function()
 				for i = 1,3 do
