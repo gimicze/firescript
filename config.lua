@@ -34,6 +34,8 @@ Config.Dispatch = {
         vector3(1207.11, -1463.37, 36),
         vector3(1195, -1464, 36),
         vector3(1195, -1484, 36),
-        vector3(1207.11, -1484, 36)
+        vector3(1207.11, -1484, 36),
+        -- Sandy Shores
+        vector3(1691, 3586, 37)
     }
 }
