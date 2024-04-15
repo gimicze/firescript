@@ -15,7 +15,7 @@ Config.Fire = {
         interval = 1800000, -- Random fire spawn interval (set to nil or false if you don't want to spawn random fires) in ms
         chance = 50, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
         players = 3, -- Sets the minimum number of players subscribed to dispatch for the spawner to spawn fires.
-        firefighterJobs = { -- If using ESX (Config.Dispatch.enableESX), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If set to nil, all jobs specified in Config.Dispatch.jobs will count as firefighters
+        firefighterJobs = { -- If using a framework (Config.Dispatch.enableFramework), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If set to nil, all jobs specified in Config.Dispatch.jobs will count as firefighters
             ["fd"] = true -- Always set the job name in the key, value has to be true
         }
     }
