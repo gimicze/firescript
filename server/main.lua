@@ -579,44 +579,76 @@ AddEventHandler(
 --         AUTO-SUBSCRIBE         --
 --================================--
 
-if Config.Dispatch.enabled and Config.Dispatch.enableESX then
-    ESX = exports["es_extended"]:getSharedObject()
+if Config.Dispatch.enabled then
+	local allowedJobs = {}
+	local firefighterJobs = {}
 
-    local allowedJobs = {}
-	local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
+	if Config.Dispatch.enableFramework then
+		if type(Config.Dispatch.jobs) == "table" then
+			for k, v in pairs(Config.Dispatch.jobs) do
+				allowedJobs[v] = true
+			end
+		else
+			allowedJobs[Config.Dispatch.jobs] = true
+		end
 
-    if type(Config.Dispatch.enableESX) == "table" then
-        for k, v in pairs(Config.Dispatch.enableESX) do
-            allowedJobs[v] = true
-        end
-    else
-        allowedJobs[Config.Dispatch.enableESX] = true
-		firefighterJobs[Config.Dispatch.enableESX] = true
-    end
+		local firefighterJobs = Config.Fire.spawner.firefighterJobs or allowedJobs
+	end
 
-    RegisterNetEvent("esx:setJob")
-    AddEventHandler(
-        "esx:setJob",
-        function(source)
-            local xPlayer = ESX.GetPlayerFromId(source)
-    
-            if allowedJobs[xPlayer.job.name] then
-                Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
-            else
-                Dispatch:unsubscribe(source)
-            end
-        end
-    )
-    
-    RegisterNetEvent("esx:playerLoaded")
-    AddEventHandler(
-        "esx:playerLoaded",
-        function(source, xPlayer)
-            if allowedJobs[xPlayer.job.name] then
-                Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
-            else
-                Dispatch:unsubscribe(source)
-            end
-        end
-    )
+	if Config.Dispatch.enableFramework = 1 then
+		ESX = exports["es_extended"]:getSharedObject()
+	
+		AddEventHandler(
+			"esx:setJob",
+			function(source)
+				local xPlayer = ESX.GetPlayerFromId(source)
+		
+				if allowedJobs[xPlayer.job.name] then
+					Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
+				else
+					Dispatch:unsubscribe(source)
+				end
+			end
+		)
+		
+		AddEventHandler(
+			"esx:playerLoaded",
+			function(source, xPlayer)
+				if allowedJobs[xPlayer.job.name] then
+					Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
+				else
+					Dispatch:unsubscribe(source)
+				end
+			end
+		)
+	elseif Config.Dispatch.enableFramework = 2 then
+		AddEventHandler(
+			'QBCore:Server:PlayerLoaded',
+			function(Player)
+				if Player.PlayerData.job.onduty and allowedJobs[Player.PlayerData.job.name] then
+					Dispatch:subscribe(Player.PlayerData.source, firefighterJobs[Player.PlayerData.job.name])
+				end
+			end
+		)
+
+		AddEventHandler(
+			'QBCore:Server:OnJobUpdate',
+			function(source, job)
+				if allowedJobs[job.name] then
+					if job.onduty then
+						Dispatch:subscribe(source, firefighterJobs[job.name])
+					else
+						Dispatch:unsubscribe(source)
+					end
+				end
+			end
+		)
+
+		AddEventHandler(
+			'QBCore:Server:OnPlayerUnload',
+			function(source)
+				Dispatch:unsubscribe(source)
+			end
+		)
+	end
 end
