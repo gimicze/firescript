@@ -174,7 +174,7 @@ Citizen.CreateThread(
 Citizen.CreateThread(
 	function()
 		while true do
-			local pedCoords = GetEntityCoords(GetPlayerPed(-1))
+			local pedCoords = GetEntityCoords(PlayerPedId())
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)

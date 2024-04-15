@@ -244,7 +244,7 @@ RegisterCommand(
 
 		local dispatchMessage = next(args) and table.concat(args, " ") or nil
 
-		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch, dispatchMessage)
+		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(PlayerPedId()), maxSpread, probability, triggerDispatch, dispatchMessage)
 	end,
 	false
 )
@@ -262,7 +262,7 @@ RegisterCommand(
 			coords = vector3(x, y, z)
 		end
 
-		TriggerServerEvent('fireManager:command:registerscenario', coords or GetEntityCoords(GetPlayerPed(-1)))
+		TriggerServerEvent('fireManager:command:registerscenario', coords or GetEntityCoords(PlayerPedId()))
 	end,
 	false
 )
@@ -285,7 +285,7 @@ RegisterCommand(
 		end
 
 		if scenarioID and spread and chance then
-			TriggerServerEvent('fireManager:command:addflame', scenarioID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
+			TriggerServerEvent('fireManager:command:addflame', scenarioID, coords or GetEntityCoords(PlayerPedId()), spread, chance)
 		end
 	end,
 	false

@@ -51,7 +51,7 @@ function Dispatch:create(dispatchNumber, coords)
         Citizen.CreateThread(
             function()
                 for i = 1, 3 do
-                    PlaySoundFromEntity(-1, "IDLE_BEEP", GetPlayerPed(-1), "EPSILONISM_04_SOUNDSET", 0)
+                    PlaySoundFromEntity(-1, "IDLE_BEEP", PlayerPedId(), "EPSILONISM_04_SOUNDSET", 0)
                     Citizen.Wait(300)
                 end
             end
@@ -151,7 +151,7 @@ if Config.Dispatch.clearGpsRadius and tonumber(Config.Dispatch.clearGpsRadius) t
 		function()
 			while true do
 				Citizen.Wait(5000)
-				if Dispatch.lastCall and Dispatch.blips[Dispatch.lastCall] and Dispatch.blips[Dispatch.lastCall].blip and #(Dispatch.blips[Dispatch.lastCall].coords - GetEntityCoords(GetPlayerPed(-1))) < Config.Dispatch.clearGpsRadius then
+				if Dispatch.lastCall and Dispatch.blips[Dispatch.lastCall] and Dispatch.blips[Dispatch.lastCall].blip and #(Dispatch.blips[Dispatch.lastCall].coords - GetEntityCoords(PlayerPedId())) < Config.Dispatch.clearGpsRadius then
 					ClearGpsMultiRoute()
 				end
 			end
