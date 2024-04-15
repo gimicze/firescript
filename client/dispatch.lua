@@ -7,6 +7,7 @@
 Dispatch = {
 	lastCall = nil,
 	blips = {},
+	playingTone = nil,
 	__index = self,
 	init = function(o)
 		o = o or {active = {}, removed = {}}
@@ -89,24 +90,22 @@ function Dispatch:create(dispatchNumber, coords)
 end
 
 function Dispatch:playTone()
-	if not (Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table") then
+	if not (self.playingTone and Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table") then
 		return false
 	end
+
+	self.playingTone = true
 
 	for k, v in ipairs(Config.Dispatch.toneSources) do
 		local soundID = GetSoundId() -- The databank gets loaded when the script launches
 
 		Citizen.CreateThread(
 			function()
-				for i = 1,3 do
-					PlaySoundFromCoord(soundID, "long_beeps", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
-				end
+				PlaySoundFromCoord(soundID, "long_beeps", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
 
 				Citizen.Wait(8000)
 
-				for i = 1,3 do
-					PlaySoundFromCoord(soundID, "short_beeps", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
-				end
+				PlaySoundFromCoord(soundID, "short_beeps", v.x, v.y, v.z, "firescript_alarm", 0, 150, 0)
 
 				Citizen.Wait(5000)
 
@@ -114,6 +113,14 @@ function Dispatch:playTone()
 			end
 		)
 	end
+
+	Citizen.SetTimeout(
+		13000,
+		function()
+			self.playingTone = nil
+		end
+	)
+
 	return true
 end
 
