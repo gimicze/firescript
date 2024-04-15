@@ -10,7 +10,7 @@ Dispatch = {
 	playingTone = nil,
 	__index = self,
 	init = function(o)
-		o = o or {active = {}, removed = {}}
+		o = o or {lastCall = {}, blips = {}, playingTone = nil}
 		setmetatable(o, self)
 		self.__index = self
 		return o
@@ -90,7 +90,7 @@ function Dispatch:create(dispatchNumber, coords)
 end
 
 function Dispatch:playTone()
-	if not (self.playingTone and Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table") then
+	if self.playingTone or not (Config.Dispatch.toneSources and type(Config.Dispatch.toneSources) == "table") then
 		return false
 	end
 

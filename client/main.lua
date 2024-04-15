@@ -428,5 +428,7 @@ AddEventHandler(
 RegisterNetEvent('fireClient:playTone')
 AddEventHandler(
 	'fireClient:playTone',
-	Dispatch.playTone
+	function()
+		Dispatch:playTone()
+	end
 )
