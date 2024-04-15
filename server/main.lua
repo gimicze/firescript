@@ -304,11 +304,6 @@ RegisterCommand(
 RegisterCommand(
 	'firewl',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source, "firescript.whitelist") then
-			sendMessage(source, "Insufficient permissions.")
-			return
-		end
-
 		local action = args[1]
 		local serverId = tonumber(args[2])
 
@@ -333,7 +328,7 @@ RegisterCommand(
 			sendMessage(source, "Invalid action.")
 		end
 	end,
-	false
+	true
 )
 
 RegisterCommand(
@@ -357,11 +352,6 @@ RegisterCommand(
 RegisterCommand(
 	'firedispatch',
 	function(source, args, rawCommand)
-		if not Whitelist:isWhitelisted(source, "firescript.dispatch") then
-			sendMessage(source, "Insufficient permissions.")
-			return
-		end
-
 		local action = args[1]
 		local serverId = tonumber(args[2])
 
@@ -400,7 +390,7 @@ RegisterCommand(
 			end
 		end
 	end,
-	false
+	true
 )
 
 RegisterCommand(
