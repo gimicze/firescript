@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.10      --
+--       FIRE SCRIPT v2.0.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -28,7 +28,7 @@ end
 
 function Whitelist:isWhitelisted(serverId, ace)
 	ace = tostring(ace)
-	return (serverId > 0 and (self.players[serverId] == true or (ace and IsPlayerAceAllowed(serverId, ace))))
+	return (serverId < 1 or (self.players[serverId] == true or (ace and IsPlayerAceAllowed(serverId, ace))))
 end
 
 function Whitelist:addPlayer(serverId, steamId)

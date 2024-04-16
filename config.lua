@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.8.0       --
+--       FIRE SCRIPT v2.0.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -15,7 +15,7 @@ Config.Fire = {
         interval = 1800000, -- Random fire spawn interval (set to nil or false if you don't want to spawn random fires) in ms
         chance = 50, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
         players = 3, -- Sets the minimum number of players subscribed to dispatch for the spawner to spawn fires.
-        firefighterJobs = { -- If using ESX (Config.Dispatch.enableESX), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If not using ESX you can set this to nil
+        firefighterJobs = { -- If using a framework (Config.Dispatch.enableFramework), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If set to nil, all jobs specified in Config.Dispatch.jobs will count as firefighters
             ["fd"] = true -- Always set the job name in the key, value has to be true
         }
     }
@@ -28,7 +28,10 @@ Config.Dispatch = {
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
     playSound = true,
-    enableESX = "fd", -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+    enableFramework = 1, -- Set to nil if you don't want to use any framework implementation. Set to 1 for ESX, 2 for QB-Core.
+    jobs = { -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+        "fd"
+    },
     toneSources = { -- Here you can set coordinates of sound sources for the fire tones to go off at; Set to nil if you wish to disable this function.
         -- Fire Station 7
         vector3(1207.11, -1463.37, 36),
