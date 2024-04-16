@@ -590,10 +590,10 @@ if Config.Dispatch.enabled then
 			allowedJobs[Config.Dispatch.jobs] = true
 		end
 
-		local firefighterJobs = Config.Fire.spawner.firefighterJobs or allowedJobs
+		firefighterJobs = Config.Fire.spawner.firefighterJobs or allowedJobs
 	end
 
-	if Config.Dispatch.enableFramework = 1 then
+	if Config.Dispatch.enableFramework == 1 then
 		ESX = exports["es_extended"]:getSharedObject()
 	
 		AddEventHandler(
@@ -619,7 +619,7 @@ if Config.Dispatch.enabled then
 				end
 			end
 		)
-	elseif Config.Dispatch.enableFramework = 2 then
+	elseif Config.Dispatch.enableFramework == 2 then
 		AddEventHandler(
 			'QBCore:Server:PlayerLoaded',
 			function(Player)
@@ -632,12 +632,10 @@ if Config.Dispatch.enabled then
 		AddEventHandler(
 			'QBCore:Server:OnJobUpdate',
 			function(source, job)
-				if allowedJobs[job.name] then
-					if job.onduty then
-						Dispatch:subscribe(source, firefighterJobs[job.name])
-					else
-						Dispatch:unsubscribe(source)
-					end
+				if allowedJobs[job.name] and job.onduty then
+					Dispatch:subscribe(source, firefighterJobs[job.name])
+				else
+					Dispatch:unsubscribe(source)
 				end
 			end
 		)
