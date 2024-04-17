@@ -420,8 +420,8 @@ end
 RegisterNetEvent('fireClient:createDispatch')
 AddEventHandler(
 	'fireClient:createDispatch',
-	function(dispatchNumber, coords)
-		Dispatch:create(dispatchNumber, coords)
+	function(dispatchNumber, coords, message)
+		Dispatch:create(dispatchNumber, coords, message)
 	end
 )
 
