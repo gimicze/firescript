@@ -53,15 +53,18 @@ function Dispatch:renderRoute(dispatchNumber, coords, showBlip)
 end
 
 function Dispatch:createNotification(dispatchNumber, message, playSound, showInBrief)
-	local showInBrief = showInBrief == nil and true or showInBrief;
+	if Config.Dispatch.useChat then
+		sendMessage(message, ("Dispatch (#%s)"):format(dispatchNumber))
+	else
+		local showInBrief = showInBrief == nil and true or showInBrief;
 
-	local txd = "CHAR_CALL911"
+		local txd = "CHAR_CALL911"
 
-	BeginTextCommandThefeedPost("STRING")
-	AddTextComponentSubstringPlayerName(tostring(message))
-	EndTextCommandThefeedPostMessagetext(txd, txd, true, 0, "Dispatch", ("Call #%s"):format(dispatchNumber))
-	EndTextCommandThefeedPostTicker(true, showInBrief)
-
+		BeginTextCommandThefeedPost("STRING")
+		AddTextComponentSubstringPlayerName(tostring(message))
+		EndTextCommandThefeedPostMessagetext(txd, txd, true, 0, "Fire Department", ("Call #%s"):format(dispatchNumber))
+		EndTextCommandThefeedPostTicker(true, showInBrief)
+	end
 	if playSound then
         Citizen.CreateThread(
             function()
