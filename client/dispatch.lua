@@ -79,7 +79,7 @@ end
 
 function Dispatch:removeBlip(dispatchNumber)
 	if self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
-		RemoveBlip(blip)
+		RemoveBlip(self.blips[dispatchNumber].blip)
 		self.blips[dispatchNumber].blip = false
 	end
 end
@@ -176,8 +176,8 @@ if Config.Dispatch.clearGpsRadius and tonumber(Config.Dispatch.clearGpsRadius) t
 		function()
 			while true do
 				Citizen.Wait(5000)
-				if self.lastCall and self.blips[self.lastCall] and self.blips[self.lastCall].blip and #(self.blips[self.lastCall].coords - GetEntityCoords(PlayerPedId())) < self.Dispatch.clearGpsRadius then
-					self.lastCall = nil
+				if Dispatch.lastCall and Dispatch.blips[Dispatch.lastCall] and Dispatch.blips[Dispatch.lastCall].blip and #(Dispatch.blips[Dispatch.lastCall].coords - GetEntityCoords(PlayerPedId())) < Config.Dispatch.clearGpsRadius then
+					Dispatch.lastCall = nil
 					ClearGpsMultiRoute()
 				end
 			end
