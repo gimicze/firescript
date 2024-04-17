@@ -5,7 +5,7 @@ games {
 }
 
 author 'GIMI, foregz, Albo1125'
-version '2.0.2'
+version '2.1.0'
 description 'Fire Script'
 
 client_scripts {

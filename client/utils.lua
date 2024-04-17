@@ -6,13 +6,13 @@
 
 -- Chat
 
-function sendMessage(text)
+function sendMessage(text, sender)
 	TriggerEvent(
 		"chat:addMessage",
 		{
 			templateId = "firescript",
 			args = {
-				("FireScript v%s"):format(Version),
+				sender or ("FireScript v%s"):format(Version),
 				text
 			}
 		}
