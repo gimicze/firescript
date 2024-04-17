@@ -27,8 +27,7 @@ function Dispatch:create(text, coords)
 	self.lastNumber = self.lastNumber + 1
 
 	for k, v in pairs(self._players) do
-		sendMessage(k, text, ("Dispatch (#%s)"):format(self.lastNumber))
-		TriggerClientEvent('fireClient:createDispatch', k, self.lastNumber, coords)
+		TriggerClientEvent('fireClient:createDispatch', k, self.lastNumber, coords, text)
 	end
 end
 

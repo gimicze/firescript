@@ -1,5 +1,5 @@
 --================================--
---       FIRE SCRIPT v1.6.3       --
+--       FIRE SCRIPT v2.1.0       --
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
@@ -17,38 +17,52 @@ Dispatch = {
 	end
 }
 
-function Dispatch:renderRoute(coords)
+function Dispatch:renderRoute(dispatchNumber, coords, showBlip)
 	ClearGpsMultiRoute()
 
     StartGpsMultiRoute(6, true, true)
     AddPointToGpsMultiRoute(table.unpack(coords))
     SetGpsMultiRouteRender(true)
+
+	if showBlip and (not self.blips[dispatchNumber] or not self.blips[dispatchNumber].blip) then
+		local blip = AddBlipForCoord(table.unpack(coords))
+		SetBlipSprite(blip, 436)
+		SetBlipDisplay(blip, 4)
+		SetBlipScale(blip, 1.5)
+		SetBlipColour(blip, 1)
+		SetBlipAsShortRange(blip, false)
+		BeginTextCommandSetBlipName("STRING")
+		AddTextComponentString("Fire #" .. dispatchNumber)
+		EndTextCommandSetBlipName(blip)
+
+		self.blips[dispatchNumber] = {
+			coords = coords,
+			blip = blip
+		}
+
+		Citizen.SetTimeout(
+			Config.Dispatch.removeBlipTimeout,
+			function()
+				self:removeBlip(dispatchNumber)
+				if self.lastCall == dispatchNumber then
+					ClearGpsMultiRoute()
+				end
+			end
+		)
+	end
 end
 
-function Dispatch:create(dispatchNumber, coords)
-	if not (dispatchNumber and coords) then
-		return
-	end
+function Dispatch:createNotification(dispatchNumber, message, playSound, showInBrief)
+	local showInBrief = showInBrief == nil and true or showInBrief;
 
-	-- Create a fire blip
-	local blip = AddBlipForCoord(table.unpack(coords))
-	SetBlipSprite(blip, 436)
-	SetBlipDisplay(blip, 4)
-	SetBlipScale(blip, 1.5)
-	SetBlipColour(blip, 1)
-	SetBlipAsShortRange(blip, false)
-	BeginTextCommandSetBlipName("STRING")
-	AddTextComponentString("Fire #" .. dispatchNumber)
-	EndTextCommandSetBlipName(blip)
+	local txd = "CHAR_CALL911"
 
-	self.blips[dispatchNumber] = {
-		coords = coords,
-		blip = blip
-	}
+	BeginTextCommandThefeedPost("STRING")
+	AddTextComponentSubstringPlayerName(tostring(message))
+	EndTextCommandThefeedPostMessagetext(txd, txd, true, 0, "Dispatch", ("Call #%s"):format(dispatchNumber))
+	EndTextCommandThefeedPostTicker(true, showInBrief)
 
-    self:renderRoute(coords)
-    
-    if Config.Dispatch.playSound then
+	if playSound then
         Citizen.CreateThread(
             function()
                 for i = 1, 3 do
@@ -58,21 +72,24 @@ function Dispatch:create(dispatchNumber, coords)
             end
         )
     end
+end
+
+function Dispatch:removeBlip(dispatchNumber)
+	if self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
+		RemoveBlip(blip)
+		self.blips[dispatchNumber].blip = false
+	end
+end
+
+function Dispatch:create(dispatchNumber, coords, message)
+	if not (dispatchNumber and coords and message) then
+		return
+	end
+
+    self:renderRoute(dispatchNumber, coords, true)
+	self:createNotification(dispatchNumber, message, Config.Dispatch.playSound)
 
 	FlashMinimapDisplay()
-
-	Citizen.SetTimeout(
-		Config.Dispatch.removeBlipTimeout,
-		function()
-			if self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
-				RemoveBlip(blip)
-				self.blips[dispatchNumber].blip = false
-			end
-			if self.lastCall == dispatchNumber then
-				ClearGpsMultiRoute()
-			end
-		end
-	)
 
 	-- Only store the last 'Config.Dispatch.storeLast' dispatches' data.
 	if countElements(self.blips) > Config.Dispatch.storeLast then
@@ -83,6 +100,7 @@ function Dispatch:create(dispatchNumber, coords)
 		end
 
 		table.sort(order)
+		self:removeBlip(order[1])
 		self.blips[order[1]] = nil
 	end
 
@@ -127,22 +145,19 @@ end
 function Dispatch:clear(dispatchNumber)
 	ClearGpsMultiRoute()
 
-	if dispatchNumber and self.blips[dispatchNumber] and self.blips[dispatchNumber].blip then
-		RemoveBlip(self.blips[dispatchNumber].blip)
-		self.blips[dispatchNumber].blip = false
+	if dispatchNumber then
+		self:removeBlip(dispatchNumber)
 	elseif dispatchNumber == 0 then
 		for k, v in pairs(self.blips) do
-			if self.blips[k].blip then
-				RemoveBlip(self.blips[k].blip)
-				self.blips[k].blip = false
-			end
+			self:removeBlip(v)
 		end
 	end
 end
 
 function Dispatch:remind(dispatchNumber)
 	if self.blips[dispatchNumber] then
-		SetNewWaypoint(table.unpack(self.blips[dispatchNumber].coords.xy))
+		self:renderRoute(dispatchNumber, self.blips[dispatchNumber].coords, true)
+		self.lastCall = dispatchNumber
 		return true
 	else
 		return false
@@ -158,7 +173,8 @@ if Config.Dispatch.clearGpsRadius and tonumber(Config.Dispatch.clearGpsRadius) t
 		function()
 			while true do
 				Citizen.Wait(5000)
-				if Dispatch.lastCall and Dispatch.blips[Dispatch.lastCall] and Dispatch.blips[Dispatch.lastCall].blip and #(Dispatch.blips[Dispatch.lastCall].coords - GetEntityCoords(PlayerPedId())) < Config.Dispatch.clearGpsRadius then
+				if self.lastCall and self.blips[self.lastCall] and self.blips[self.lastCall].blip and #(self.blips[self.lastCall].coords - GetEntityCoords(PlayerPedId())) < self.Dispatch.clearGpsRadius then
+					self.lastCall = nil
 					ClearGpsMultiRoute()
 				end
 			end
