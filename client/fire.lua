@@ -54,7 +54,7 @@ function Fire:removeFlame(fireIndex, flameIndex)
 		self.active[fireIndex].particles[flameIndex] = nil
 	end
 
-	if self.active[fireIndex].flameParticles[flameIndex] and self.active[fireIndex].flameParticles[flameIndex] ~= 0 then
+	if self.active[fireIndex].flameParticles[flameIndex] then
 		local flameParticles = self.active[fireIndex].flameParticles[flameIndex]
 		local soundID = self.active[fireIndex].sound[flameIndex]
 
@@ -128,21 +128,7 @@ end
 --================================--
 
 Citizen.CreateThread(
-	function()
-		if not HasNamedPtfxAssetLoaded("scr_agencyheistb") then
-			RequestNamedPtfxAsset("scr_agencyheistb")
-			while not HasNamedPtfxAssetLoaded("scr_agencyheistb") do
-				Wait(1)
-			end
-		end
-
-        if not HasNamedPtfxAssetLoaded("scr_trevor3") then
-            RequestNamedPtfxAsset("scr_trevor3")
-            while not HasNamedPtfxAssetLoaded("scr_trevor3") do
-                Wait(1)
-            end
-		end
-		
+	function()		
 		while true do
 			Citizen.Wait(1500)
 			while syncInProgress do
@@ -178,11 +164,13 @@ Citizen.CreateThread(
 			for fireIndex, v in pairs(Fire.active) do
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
+
 					while syncInProgress do
 						Citizen.Wait(10)
 					end
 					syncInProgress = true
-					if Fire.active[fireIndex] and Fire.active[fireIndex].flameCoords[flameIndex] and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then
+
+					if Fire.active[fireIndex] and Fire.active[fireIndex].flameCoords[flameIndex] and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then						
 						local z = coords.z
 		
 						repeat
@@ -197,6 +185,20 @@ Citizen.CreateThread(
 						Fire.active[fireIndex].flames[flameIndex] = StartScriptFire(coords.x, coords.y, z, 0, false)
 
 						if Fire.active[fireIndex].flames[flameIndex] then -- Make sure the fire has been spawned properly
+							if not HasNamedPtfxAssetLoaded("scr_agencyheistb") then
+								RequestNamedPtfxAsset("scr_agencyheistb")
+								while not HasNamedPtfxAssetLoaded("scr_agencyheistb") do
+									Wait(10)
+								end
+							end
+	
+							if not HasNamedPtfxAssetLoaded("scr_trevor3") then
+								RequestNamedPtfxAsset("scr_trevor3")
+								while not HasNamedPtfxAssetLoaded("scr_trevor3") do
+									Wait(10)
+								end
+							end
+
 							Fire.active[fireIndex].flameCoords[flameIndex] = vector3(coords.x, coords.y, z)
 
 							Fire.active[fireIndex].sound[flameIndex] = GetSoundId()
