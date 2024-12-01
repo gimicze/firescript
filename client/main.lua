@@ -338,7 +338,7 @@ AddEventHandler(
 			function()
 				for k, v in pairs(fires) do
 					for _k, _v in ipairs(v) do
-						Fire:createFlame(k, _k, _v)
+						Fire:createFlame(k, _k, _v.c)
 					end
 				end
 				syncInProgress = false

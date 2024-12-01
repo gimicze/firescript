@@ -48,9 +48,9 @@ function Fire:create(coords, maximumSpread, spreadChance, difficulty)
 						index, flames = highestIndex(self.active, fireIndex)
 						local rndSpread = math.random(100)
 						if flames <= maximumSpread and rndSpread <= spreadChance then
-							local x = self.active[fireIndex][k].v.x
-							local y = self.active[fireIndex][k].v.y
-							local z = self.active[fireIndex][k].v.z
+							local x = self.active[fireIndex][k].c.x
+							local y = self.active[fireIndex][k].c.y
+							local z = self.active[fireIndex][k].c.z
 	
 							local xSpread = math.random(-3, 3)
 							local ySpread = math.random(-3, 3)
@@ -80,7 +80,7 @@ end
 function Fire:createFlame(fireIndex, coords)
 	local flameIndex = highestIndex(self.active, fireIndex) + 1
 	self.active[fireIndex][flameIndex] = {
-		v = coords
+		c = coords
 	}
 	self.active[fireIndex][flameIndex].extinguished = self.active[fireIndex].difficulty and 1 or nil
 	TriggerClientEvent('fireClient:createFlame', -1, fireIndex, flameIndex, coords)
@@ -353,19 +353,20 @@ function Fire:loadScenarios()
 	local firesFile = loadData("fires")
 	self.random = {}
 	if firesFile ~= nil then
-		for index, fire in pairs(firesFile) do
-			for _, flame in pairs(fire.flames) do
-				flame.coords = vector3(flame.coords.x, flame.coords.y, flame.coords.z)
-			end
+		self.scenario = firesFile
+		for index, fire in pairs(self.scenario) do
 			if fire.dispatchCoords then
-				fire.dispatchCoords = vector3(fire.dispatchCoords.x, fire.dispatchCoords.y, fire.dispatchCoords.z)
+				self.scenario[index].dispatchCoords = vector3(fire.dispatchCoords.x, fire.dispatchCoords.y, fire.dispatchCoords.z)
+			end
+			for _, flame in pairs(fire.flames) do
+				self.scenario[index].flames[_].coords = vector3(flame.coords.x, flame.coords.y, flame.coords.z)
 			end
 			if fire.random == true then
 				self.random[index] = true
 			end
 		end
-		self.scenario = firesFile
 	else
-		saveData({}, "fires")
+		self.scenario = {}
+		saveData(self.scenario, "fires")
 	end
 end
