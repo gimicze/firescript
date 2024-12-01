@@ -169,8 +169,6 @@ Citizen.CreateThread(
 				for flameIndex, coords in pairs(Fire.active[fireIndex].flameCoords) do
 					Citizen.Wait(10)
 
-					print(type(coords))
-
 					if Fire.active[fireIndex] and Fire.active[fireIndex].flameCoords[flameIndex] and not Fire.active[fireIndex].particles[flameIndex] and #(coords - pedCoords) < 300.0 then						
 						local z = coords.z
 		
