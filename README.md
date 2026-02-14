@@ -1,5 +1,3 @@
-
-
 ![Logo](https://i.imgur.com/cfPLDVh.png)
 
 [![License GNU-GPL v3](https://img.shields.io/github/license/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/blob/master/LICENSE "License")
@@ -7,7 +5,7 @@
 [![Total downloads](https://img.shields.io/github/downloads/gimicze/firescript/total?style=for-the-badge)](https://github.com/gimicze/firescript/releases/latest "Total downloads")
 ![Maintenance](https://img.shields.io/badge/status-unmaintained-red?style=for-the-badge)
 
-> No longer maintained. Contact the author via GitHub to take over.
+> No longer maintained. Contact the author via cfx.re Forum to take over.
 
 A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic fires. As far as I am aware, the only fire script compatible with OneSync Infinity / Beyond.
 
@@ -51,4 +49,5 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 # License
 [GNU GPL 3.0](https://github.com/gimicze/firescript/blob/main/LICENSE)
+
 
